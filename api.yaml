@@ -1,14 +1,68 @@
 swagger: '2.0'
 info: 
-  title: Apostle music app server API Documentation
-  description: API documentation for Apostle music app.
+  title: Edu-connect, ACN, Arewa Hub server API Documentation
+  description: API documentation for Edu-connect, ACN, Arewa Hub.
   version: 1.0
   contact: 
     email: successakinyemi365@gmail.com
   license:
     name: Apache 2.0
     url: 'http://apache.org/'
-host: apostle.onrender.com
+host: educonnect-admin-backend.onrender.com
 basePath: /               
 schemes:
   - https
+
+paths:
+  /:
+    get:
+      summary: Home GET request
+      description: Server base endpoint
+      responses:
+        200:
+          description: Success
+
+  /api/educonnect/contactUs/sendMessage:
+    post:
+      summary: Register new user
+      description: Register a user
+      parameters:
+        - name: body
+          in: body
+          required: true
+          schema:
+            type: object
+            required:
+              - firstName
+              - lastName
+              - email
+              - phoneNumber
+              - message
+            properties:
+              firstName:
+                type: string
+              lastName:
+                type: string
+              email:
+                type: string
+              phoneNumber:
+                type: string
+              message:
+                type: string
+      responses:
+        201: 
+          description: Message Submitted Successful
+        400:
+          description: User error
+        500: 
+          description: Server error
+
+  /api/educonnect/faq/getAllFaq:
+    get:
+      summary: Get Faq for educonnect
+      description: get frequently asked questions for educonnect website
+      responses:
+        200:
+          description: Success
+        500:
+          description: Server error 
