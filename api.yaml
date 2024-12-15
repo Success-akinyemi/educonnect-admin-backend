@@ -24,8 +24,8 @@ paths:
 
   /api/educonnect/contactUs/sendMessage:
     post:
-      summary: Register new user
-      description: Register a user
+      summary: send a contact us message
+      description: send a contact us message
       parameters:
         - name: body
           in: body
@@ -66,3 +66,86 @@ paths:
           description: Success
         500:
           description: Server error 
+
+  /api/acn/contactUs/sendMessage:
+    post:
+      summary: send a contact us message
+      description: send a contact us message
+      parameters:
+        - name: body
+          in: body
+          required: true
+          schema:
+            type: object
+            required:
+              - firstName
+              - lastName
+              - email
+              - phoneNumber
+              - message
+            properties:
+              firstName:
+                type: string
+              lastName:
+                type: string
+              email:
+                type: string
+              phoneNumber:
+                type: string
+              message:
+                type: string
+      responses:
+        201: 
+          description: Message Submitted Successful
+        400:
+          description: User error
+        500: 
+          description: Server error
+
+  /api/acn/faq/getAllFaq:
+    get:
+      summary: Get Faq for educonnect
+      description: get frequently asked questions for educonnect website
+      responses:
+        200:
+          description: Success
+        500:
+          description: Server error 
+
+  /api/testimony/getSectionActiveTestimonies/:value:
+    get:
+      summary: Get Testimonies form testifiers
+      description: Get Testimonies form testifiers value parameters = 'educonnect', 'acn', 'arewahub'
+      responses:
+        200:
+          description: Success
+        400:
+          description: User error
+        500:
+          description: Server error 
+
+  /api/suscribe/addSuscriber:
+    post:
+      summary: Add user to news letter
+      description: This endpoint add user to newdletter list. requires user email, and website to identify the website user want to subscribe to website value options = ['educonnect', 'acn', 'arewahub']
+      parameters:
+        - name: body
+          in: body
+          required: true
+          schema:
+            type: object
+            required:
+              - email
+              - website
+            properties:
+              email:
+                type: string
+              website:
+                type: string
+      responses:
+        201: 
+          description: Successful
+        400:
+          description: User error
+        500: 
+          description: Server error

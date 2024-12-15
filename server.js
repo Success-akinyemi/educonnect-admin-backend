@@ -11,12 +11,17 @@ import cors from 'cors';
 //IMPORT ROUTES
 import authRoute from './routes/auth.routes.js';
 import AdminRoute from './routes/adminAuth.controllers.js';
+import testimonialsRoutes from './routes/testimonials.routes.js';
+import subscribeRoutes from './routes/suscribe.routes.js';
+
 
 //EDUCONNECT
 import educonnectContactUsRoutes from './routes/educonnect/contactUs.routes.js';
 import educonnectFaqRoutes from './routes/educonnect/faq.routes.js';
-import educonnectTestimonialsRoutes from './routes/educonnect/testimonials.routes.js';
 
+//ACN
+import acnContactUsRoutes from './routes/acn/contactUs.routes.js';
+import acnFaqRoutes from './routes/acn/faq.routes.js';
 
 
 // CORS setup
@@ -84,10 +89,17 @@ app.get('/', (req, res) => {
 
 app.use('/api/auth', authRoute);
 app.use('/api/admin', AdminRoute);
-//EDUCONNECT
+app.use('/api/suscribe', subscribeRoutes);
+app.use('/api/testimony', testimonialsRoutes);
+
+
+//acn
 app.use('/api/educonnect/contactUs', educonnectContactUsRoutes);
 app.use('/api/educonnect/faq', educonnectFaqRoutes);
-app.use('/api/educonnect/testimonies', educonnectTestimonialsRoutes);
+
+//ACN
+app.use('/api/acn/contactUs', acnContactUsRoutes);
+app.use('/api/acn/faq', acnFaqRoutes);
 
 
 // Start server with socket

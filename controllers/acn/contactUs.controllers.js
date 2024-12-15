@@ -1,7 +1,7 @@
 import Mailgen from "mailgen"
 import mailer from "../../middlewares/mailer.js"
 import { generateUniqueCode } from "../../middlewares/utils.js"
-import ContactUsModel from "../../models/educonnect/ContactUs.js"
+import ContactUsModel from "../../models/acn/ContactUs.js"
 
 const mailGenerator = new Mailgen({
     theme: 'default',
