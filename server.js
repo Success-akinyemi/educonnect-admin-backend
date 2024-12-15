@@ -22,6 +22,8 @@ import educonnectFaqRoutes from './routes/educonnect/faq.routes.js';
 //ACN
 import acnContactUsRoutes from './routes/acn/contactUs.routes.js';
 import acnFaqRoutes from './routes/acn/faq.routes.js';
+import acnNewsAndUpdatesRoutes from './routes/acn/newsAndUpdates.routes.js';
+
 
 
 // CORS setup
@@ -100,6 +102,8 @@ app.use('/api/educonnect/faq', educonnectFaqRoutes);
 //ACN
 app.use('/api/acn/contactUs', acnContactUsRoutes);
 app.use('/api/acn/faq', acnFaqRoutes);
+app.use('/api/acn/newsAndUpdates', acnNewsAndUpdatesRoutes);
+
 
 
 // Start server with socket
