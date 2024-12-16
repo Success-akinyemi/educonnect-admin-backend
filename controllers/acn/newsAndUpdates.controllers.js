@@ -63,8 +63,24 @@ export async function deleteNews(req, res) {
     }
 }
 
+export async function toggleActive(req, res) {
+    const { id } = req.body
+    try {
+        const findPost = await NewsAndUpdatesModel.findById({ _id: id })
+        if(!findPost){
+            return res.status(404).json({ success: false, data: 'Post with this id deos not exist' })
+        }
+
+        findPost.active = !findPost.active
+        await findPost.save()
+        res.status(200).json({ success: true, data: `${findPost?.active ? 'Post Active' : 'Post Inactive'}` })
+    } catch (error) {
+        console.log('UNABLE TO DELETE NEWS POSTS', error)
+        res.status(500).json({ success: false, data: 'Unable to delete news post' })
+    }
+}
+
 export async function getAllNewsAndUpdates(req, res) {
-    console.log('COMING')
     try {
         const getPosts = await NewsAndUpdatesModel.find()
 

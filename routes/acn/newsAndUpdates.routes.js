@@ -7,7 +7,8 @@ const router = express.Router()
 //POST ROUTES
 router.post('/newNews', AuthenticateAdmin, controllers.newNews )
 router.post('/updateNews', AuthenticateAdmin, controllers.updateNews )
-router.post('/deleteNews', AuthenticateAdmin, controllers.deleteNews )
+router.post('/toggleActive', AuthenticateAdmin, controllers.toggleActive )
+router.post('/deleteNewsAndUpdate', AuthenticateAdmin, controllers.deleteNews )
 
 //GET ROUTES
 router.get('/getAllNewsAndUpdates', AuthenticateAdmin, controllers.getAllNewsAndUpdates )
