@@ -122,15 +122,94 @@ paths:
         500:
           description: Server error 
 
-  /api/acn/newsAndUpdates/getUserANewsAndUpdates/:id:
+  /api/acn/newsAndUpdates/getUserANewsAndUpdates/{id}:
     get:
       summary: Get a News and updates (blog post)
       description: Get a News and updates (blog post)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: The ID of the blog post to retrieve
+          schema:
+            type: string
+      responses:
+        201: 
+          description: Successful
+        400:
+          description: User error
+        500: 
+          description: Server error
+
+  /api/arewahub/product/products:
+    get:
+      summary: Get product for arewa hub
+      description: Get product for arewa hub
       responses:
         200:
           description: Success
         500:
-          description: Server error 
+          description: Server error   
+
+  /api/arewahub/product/{id}:
+    get:
+      summary: Get a specific product item
+      description: Get a specific product item using its `id`.
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: The ID of the product to retrieve
+          schema:
+            type: string
+      responses:
+        201: 
+          description: Successful
+        400:
+          description: User error
+        500: 
+          description: Server error
+
+  /api/arewahub/orders/newOrder:
+    post:
+      summary: New order by customers
+      description: Handle new order takes items as an array of object of id (of product) and quantity (of product)
+      parameters:
+        - name: body
+          in: body
+          required: true
+          schema:
+            type: object
+            required:
+              - customerName
+              - customerEmail
+              - phoneNumber
+              - items
+            properties:
+              customerName:
+                type: string
+              customerEmail:
+                type: string
+              phoneNumber:
+                type: string
+              items:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id:
+                      type: string
+                      description: "The ID of the product"
+                    quantity:
+                      type: integer
+                      description: "The quantity of the product (default is 1)"
+      responses:
+        201: 
+          description: Successful
+        400:
+          description: User error
+        500: 
+          description: Server error
 
   /api/testimony/getSectionActiveTestimonies/:value:
     get:

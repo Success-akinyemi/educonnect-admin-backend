@@ -24,6 +24,10 @@ import acnContactUsRoutes from './routes/acn/contactUs.routes.js';
 import acnFaqRoutes from './routes/acn/faq.routes.js';
 import acnNewsAndUpdatesRoutes from './routes/acn/newsAndUpdates.routes.js';
 
+//AREWA HUB
+import arewaProductRoutes from './routes/arewahub/product.route.js'
+import arewaOrdersRoutes from './routes/arewahub/orders.routes.js'
+
 
 
 // CORS setup
@@ -105,6 +109,9 @@ app.use('/api/acn/contactUs', acnContactUsRoutes);
 app.use('/api/acn/faq', acnFaqRoutes);
 app.use('/api/acn/newsAndUpdates', acnNewsAndUpdatesRoutes);
 
+//AREWA HUB
+app.use('/api/arewahub/product', arewaProductRoutes)
+app.use('/api/arewahub/orders', arewaOrdersRoutes)
 
 
 // Start server with socket
