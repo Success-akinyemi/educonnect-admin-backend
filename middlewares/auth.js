@@ -19,6 +19,7 @@ export const AuthenticateAdmin = async (req, res, next) => {
             req.user = user; // Attach user to request
             return next();
         } catch (error) {
+            console.log('object', error)
             // If token expired, fall through to refresh token logic
             if (error.name !== "TokenExpiredError") {
                 return res.status(403).json({ success: false, data: "Invalid access token" });

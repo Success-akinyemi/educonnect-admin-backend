@@ -3,59 +3,75 @@ import OrderModel from "../../models/arewahub/Orders.js"
 import ProductModel from "../../models/arewahub/Product.js"
 
 export async function newOrder(req, res) {
-    const { customerName, customerEmail, phoneNumber, items } = req.body
-    if(!customerName){
-        return res.status(400).json({ success: false, data: 'Customer name is required' })
-    }
-    if(!customerEmail){
-        return res.status(400).json({ success: false, data: 'Customer email is required' })
-    }
-    if(!phoneNumber){
-        return res.status(400).json({ success: false, data: 'Customer phone number is required' })
-    }
-    if(items?.length < 1){
-        return res.status(400).json({ success: false, data: 'At Least one product is required' })
-    }
-    try {
-        //GET THE ID OF ALL PRODUCT IN THE ITEM ARRAY
-        const productIds = items.map(item => item.id);
+    const { customerName, customerEmail, phoneNumber, items } = req.body;
 
-        const products = await ProductModel.find({ productId: { $in: productIds } });
-    
+    if (!customerName) {
+        return res.status(400).json({ success: false, data: 'Customer name is required' });
+    }
+    if (!customerEmail) {
+        return res.status(400).json({ success: false, data: 'Customer email is required' });
+    }
+    if (!phoneNumber) {
+        return res.status(400).json({ success: false, data: 'Customer phone number is required' });
+    }
+    if (items?.length < 1) {
+        return res.status(400).json({ success: false, data: 'At least one product is required' });
+    }
+
+    try {
+        // Get the IDs of all products in the items array
+        const productIds = items.map((item) => item.id);
+
+        // Fetch products with the specified IDs that are active
+        const products = await ProductModel.find({ 
+            productId: { $in: productIds }, 
+            active: true 
+        });
+
+        if (!products || products.length < 1) {
+            return res.status(403).json({ success: false, data: 'No valid products found in the order' });
+        }
+
         // Map fetched products to calculate total amounts
         let totalAmount = 0;
-        const productDetails = products.map(product => {
-            const item = items.find(i => i.id === product.productId.toString());
+        const productDetails = products.map((product) => {
+            const item = items.find((i) => i.id === product.productId.toString());
             const quantity = item?.quantity || 1; // Default quantity to 1 if not provided
             const itemTotal = product.price * quantity;
             totalAmount += itemTotal;
-    
+
             return {
                 id: product?._id,
-                productId: product?.productId, 
+                productId: product?.productId,
                 name: product.productName,
                 price: product.price,
                 quantity: quantity,
-                total: itemTotal
+                total: itemTotal,
+                image: product?.image
             };
         });
 
-        if(!productDetails || productDetails?.length < 1 || totalAmount === 0){
-            return res.status(403).json({ success: false, data: 'Invalid order' })
+        if (productDetails.length < 1 || totalAmount === 0) {
+            return res.status(403).json({ success: false, data: 'Invalid order' });
         }
-        
-        const orderId = await generateUniqueCode(8)
-        console.log('ORDER ID', orderId)
-        const newOrder = await OrderModel.create({
-            customerName, customerEmail, phoneNumber, amount: totalAmount, items: productDetails, orderId: orderId
-        })
 
-        //send payment gateway
-        
-        res.status(201).json({ success: true, data: 'Order created successfull' })
+        const orderId = await generateUniqueCode(8);
+        console.log('ORDER ID', orderId);
+
+        const newOrder = await OrderModel.create({
+            customerName,
+            customerEmail,
+            phoneNumber,
+            amount: totalAmount,
+            items: productDetails,
+            orderId: orderId,
+        });
+
+        // Send payment gateway response or further processing
+        res.status(201).json({ success: true, data: 'Order created successfully' });
     } catch (error) {
-        console.log('UNABLE TO CREATE NEW ORDER', error)
-        res.status(500).json({ success: false, data: 'Unable to create new order' })
+        console.log('UNABLE TO CREATE NEW ORDER', error);
+        res.status(500).json({ success: false, data: 'Unable to create new order' });
     }
 }
 
@@ -65,7 +81,7 @@ export async function approveOrderDelivered(req, res) {
         return res.status(400).json({ success: false, data: 'Order Id is required' })
     }
     try {
-        const order = await OrderModel.find({ _id: id })
+        const order = await OrderModel.findById({ _id: id })
         if(!order){
             return res.status(404).json({ success: false, data: 'Order not found' })
         }
@@ -73,10 +89,10 @@ export async function approveOrderDelivered(req, res) {
         order.status === 'Approved' ? order.status = 'Pending' : 'Approved'
 
 
-        res.status(200).json({ success: false, data: 'Order approved successful' })
+        res.status(200).json({ success: false, data: 'Order Status updated' })
     } catch (error) {
         console.log('UNABLE TO TOGGLE ORDER APPROVAL', error)
-        res.status(500).json({ success: false, data: 'Unable to toggle order approva;' })
+        res.status(500).json({ success: false, data: 'Unable to toggle order approval' })
     }
 }
 
@@ -97,7 +113,7 @@ export async function fetchOrder(req, res) {
         return res.status(400).json({ success: false, data: 'Order Id is required' })
     }
     try {
-        const order = await OrderModel.find({ _id: id })
+        const order = await OrderModel.findById({ _id: id })
         if(!order){
             return res.status(404).json({ success: false, data: 'Order not found' })
         }

@@ -151,10 +151,10 @@ paths:
         500:
           description: Server error   
 
-  /api/arewahub/product/{id}:
+  /api/arewahub/product/product/{id}:
     get:
       summary: Get a specific product item
-      description: Get a specific product item using its `id`.
+      description: Get a specific product item using its `productId`.
       parameters:
         - name: id
           in: path
@@ -206,6 +206,80 @@ paths:
       responses:
         201: 
           description: Successful
+        400:
+          description: User error
+        500: 
+          description: Server error
+
+  /api/arewahub/events/getEvents:
+    get:
+      summary: Get events for arewa hub
+      description: Get events for arewa hub
+      responses:
+        200:
+          description: Success
+        500:
+          description: Server error   
+
+  /api/arewahub/events/getEvent/{id}:
+    get:
+      summary: Get a specific events data
+      description: Get a specific events data using its `eventId`.
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: The ID of the events to retrieve
+          schema:
+            type: string
+      responses:
+        201: 
+          description: Successful
+        400:
+          description: User error
+        500: 
+          description: Server error
+
+  /api/arewahub/faq/getAllFaq:
+    get:
+      summary: Get Faq for educonnect
+      description: get frequently asked questions for educonnect website
+      responses:
+        200:
+          description: Success
+        500:
+          description: Server error 
+
+  /api/acn/contactUs/sendMessage:
+    post:
+      summary: send a contact us message
+      description: send a contact us message
+      parameters:
+        - name: body
+          in: body
+          required: true
+          schema:
+            type: object
+            required:
+              - firstName
+              - lastName
+              - email
+              - phoneNumber
+              - message
+            properties:
+              firstName:
+                type: string
+              lastName:
+                type: string
+              email:
+                type: string
+              phoneNumber:
+                type: string
+              message:
+                type: string
+      responses:
+        201: 
+          description: Message Submitted Successful
         400:
           description: User error
         500: 

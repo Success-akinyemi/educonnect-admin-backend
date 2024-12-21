@@ -1,5 +1,5 @@
 import express from 'express'
-import * as controllers from '../../controllers/acn/contactUs.controllers.js'
+import * as controllers from '../../controllers/arewahub/contactUs.controllers.js'
 import { AuthenticateAdmin } from '../../middlewares/auth.js'
 
 const router = express.Router()

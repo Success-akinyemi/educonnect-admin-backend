@@ -8,6 +8,7 @@ import cookieParser from 'cookie-parser';
 import bodyParser from 'body-parser';
 import cors from 'cors';
 
+
 //IMPORT ROUTES
 import authRoute from './routes/auth.routes.js';
 import AdminRoute from './routes/adminAuth.controllers.js';
@@ -27,6 +28,11 @@ import acnNewsAndUpdatesRoutes from './routes/acn/newsAndUpdates.routes.js';
 //AREWA HUB
 import arewaProductRoutes from './routes/arewahub/product.route.js'
 import arewaOrdersRoutes from './routes/arewahub/orders.routes.js'
+import arewaEventsRoutes from './routes/arewahub/event.routes.js'
+import arewaFaqRoutes from './routes/arewahub/faq.routes.js';
+import arewaContactUsRoutes from './routes/arewahub/contactUs.routes.js';
+
+
 
 
 
@@ -112,6 +118,9 @@ app.use('/api/acn/newsAndUpdates', acnNewsAndUpdatesRoutes);
 //AREWA HUB
 app.use('/api/arewahub/product', arewaProductRoutes)
 app.use('/api/arewahub/orders', arewaOrdersRoutes)
+app.use('/api/arewahub/events', arewaEventsRoutes)
+app.use('/api/arewahub/faq', arewaFaqRoutes)
+app.use('/api/arewahub/contactUs', arewaContactUsRoutes)
 
 
 // Start server with socket
