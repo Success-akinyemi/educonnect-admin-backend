@@ -11,62 +11,78 @@ cloudinary.v2.config({
     api_secret: process.env.CLOUDINARY_API_SECRET,
   });
 
-//REGISTER
+// REGISTER
 export async function register(req, res) {
-    const { firstName, lastName, email, password } = req.body
-    if(!firstName){
-        return res.status(400).json({ success: false, data: 'Provide a first name' })
+    const { firstName, lastName, email, password } = req.body;
+
+    if (!firstName) {
+        return res.status(400).json({ success: false, data: 'Provide a first name' });
     }
-    if(!lastName){
-        return res.status(400).json({ success: false, data: 'Provide a last name' })
+    if (!lastName) {
+        return res.status(400).json({ success: false, data: 'Provide a last name' });
     }
-    if(!email){
-        return res.status(400).json({ success: false, data: 'Provide an email address' })
+    if (!email) {
+        return res.status(400).json({ success: false, data: 'Provide an email address' });
     }
+
+    // Email regex to validate format
     const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
-    if(!emailRegex.test(email)){
-        return res.status(401).json({ success: false, data: 'Invalid Email Address' })
+    if (!emailRegex.test(email)) {
+        return res.status(401).json({ success: false, data: 'Invalid Email Address' });
     }
-    if(!password){
-        return res.status(400).json({ success: false, data: 'Provide a password' })
+
+    // Ensure email ends with @educonnectafrica.com
+    const allowedDomain = '@educonnectafrica.com';
+    if (!email.endsWith(allowedDomain)) {
+        return res.status(400).json({ success: false, data: `Invalid Email Type` });
     }
-    if(password.length < 8 ){
-        return res.status(400).json({ success: false, data: 'Password must be at least 8 characters long' })
+
+    if (!password) {
+        return res.status(400).json({ success: false, data: 'Provide a password' });
     }
+    if (password.length < 8) {
+        return res.status(400).json({ success: false, data: 'Password must be at least 8 characters long' });
+    }
+
     const specialChars = /[!@#$%^&*()_+{}[\]\\|;:'",.<>?]/;
     if (!specialChars.test(password)) {
         return res.status(400).json({ success: false, data: 'Passwords must contain at least one special character' });
     }
+
     try {
-        const emailExist = await AdminModel.findOne({ email })
-        if(emailExist){
-            return res.status(400).json({ success: false, data: 'Email already exist' })
+        const emailExist = await AdminModel.findOne({ email });
+        if (emailExist) {
+            return res.status(400).json({ success: false, data: 'Email already exists' });
         }
 
-        const generatedAdminCode = await generateUniqueCode(6)
-        console.log('STAFF CODE>>', `EC${generatedAdminCode}`)
+        const generatedAdminCode = await generateUniqueCode(6);
+        console.log('STAFF CODE>>', `EC${generatedAdminCode}`);
 
         const newAdmin = await AdminModel.create({
-            firstName, lastName, email, password, staffID: `EC${generatedAdminCode}`
-        })
+            firstName,
+            lastName,
+            email,
+            password,
+            staffID: `EC${generatedAdminCode}`
+        });
 
-        const otpCode = await generateOtp(newAdmin._id, newAdmin?.accountType)
-        console.log('OTP', otpCode)
+        const otpCode = await generateOtp(newAdmin._id, newAdmin?.accountType);
+        console.log('OTP', otpCode);
 
         const newNotification = await NotificationModel.create({
             message: `New Admin user register`,
             actionBy: newAdmin._id,
             name: `${firstName} ${lastName}`
-        })
+        });
 
         try {
             await sendEmail({
                 username: `${newAdmin?.firstName} ${newAdmin?.lastName}`,
                 userEmail: newAdmin.email,
                 subject: 'EDUCONNECT AFRICA ACCOUNT CREATED SUCCESS',
-                intro: 'Your EduConnect Africa admin account has been created successfull',
+                intro: 'Your EduConnect Africa admin account has been created successfully',
                 instructions: `Verify your account email address with this OTP. OTP is valid for one (1) Hour.`,
-                outro: `If you have further question contact Admin for support`,
+                outro: `If you have further questions, contact Admin for support`,
                 otp: otpCode,
                 textName: 'OTP'
             });
@@ -76,10 +92,10 @@ export async function register(req, res) {
             console.log('ERROR SENDING VERIFY OTP EMAIL', error);
         }
 
-        res.status(201).json({ success: true, data: `${firstName} ${lastName} has been successfully created an account` })
+        res.status(201).json({ success: true, data: `${firstName} ${lastName} has successfully created an account` });
     } catch (error) {
-        console.log('UNABLE TO CREATE A NEW ADMIN USER ACCOUNT', error)
-        res.status(500).json({ success: false, data: 'Unable to create account' })
+        console.log('UNABLE TO CREATE A NEW ADMIN USER ACCOUNT', error);
+        res.status(500).json({ success: false, data: 'Unable to create account' });
     }
 }
 
