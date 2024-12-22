@@ -3,6 +3,13 @@ import { generateOtp, generateUniqueCode } from "../middlewares/utils.js"
 import AdminModel from "../models/Admin.js"
 import NotificationModel from "../models/NotificationModel.js"
 import OtpModel from "../models/Otp.js"
+import cloudinary from "cloudinary";
+
+cloudinary.v2.config({
+    cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+    api_key: process.env.CLOUDINARY_API_KEY,
+    api_secret: process.env.CLOUDINARY_API_SECRET,
+  });
 
 //REGISTER
 export async function register(req, res) {
@@ -323,10 +330,19 @@ export async function resetPassword(req, res) {
 //UPDATE USER
 export async function editProfile(req, res) {
     const { id, firstName, lastName, phoneNumber, country, profileImg, bio, email } = req.body
+    
     try {
         if(req.body.staffID){
             return res.status(403).json({ success: false, data: 'Staff ID cannot be updated' })
         }
+
+        let imageUrl
+        if (profileImg) {
+            const result = await cloudinary.uploader.upload(profileImg);
+            imageUrl = result.url;
+        }
+        console.log('Profile Url', imageUrl)
+
         const updateUser = await AdminModel.findByIdAndUpdate(
             id,
             {
@@ -335,7 +351,7 @@ export async function editProfile(req, res) {
                     lastName,
                     phoneNumber,
                     country,
-                    profileImg,
+                    profileImg: imageUrl,
                     bio,
                     email
                 }

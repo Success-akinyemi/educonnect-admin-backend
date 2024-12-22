@@ -32,7 +32,8 @@ import arewaEventsRoutes from './routes/arewahub/event.routes.js'
 import arewaFaqRoutes from './routes/arewahub/faq.routes.js';
 import arewaContactUsRoutes from './routes/arewahub/contactUs.routes.js';
 
-
+//EDUCONNECT
+import eduafricaContactUsRoutes from './routes/eduafrica/contactUs.routes.js';
 
 
 
@@ -121,6 +122,9 @@ app.use('/api/arewahub/orders', arewaOrdersRoutes)
 app.use('/api/arewahub/events', arewaEventsRoutes)
 app.use('/api/arewahub/faq', arewaFaqRoutes)
 app.use('/api/arewahub/contactUs', arewaContactUsRoutes)
+
+//EDU AFRICA
+app.use('/api/eduafrica/contactUs', eduafricaContactUsRoutes);
 
 
 // Start server with socket
