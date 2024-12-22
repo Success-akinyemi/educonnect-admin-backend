@@ -24,6 +24,7 @@ import educonnectFaqRoutes from './routes/educonnect/faq.routes.js';
 import acnContactUsRoutes from './routes/acn/contactUs.routes.js';
 import acnFaqRoutes from './routes/acn/faq.routes.js';
 import acnNewsAndUpdatesRoutes from './routes/acn/newsAndUpdates.routes.js';
+import acnTeamMembersRoutes from './routes/acn/team.routes.js';
 
 //AREWA HUB
 import arewaProductRoutes from './routes/arewahub/product.route.js'
@@ -31,6 +32,7 @@ import arewaOrdersRoutes from './routes/arewahub/orders.routes.js'
 import arewaEventsRoutes from './routes/arewahub/event.routes.js'
 import arewaFaqRoutes from './routes/arewahub/faq.routes.js';
 import arewaContactUsRoutes from './routes/arewahub/contactUs.routes.js';
+
 
 //EDUCONNECT
 import eduafricaContactUsRoutes from './routes/eduafrica/contactUs.routes.js';
@@ -42,6 +44,7 @@ const allowedOrigins = [
     process.env.CLIENT_URL,
     process.env.ADMIN_URL,
     process.env.SERVER_URL,
+    process.env.ADMIN_FALLBACK_URL,
     '*',
 ];
 
@@ -115,6 +118,7 @@ app.use('/api/educonnect/faq', educonnectFaqRoutes);
 app.use('/api/acn/contactUs', acnContactUsRoutes);
 app.use('/api/acn/faq', acnFaqRoutes);
 app.use('/api/acn/newsAndUpdates', acnNewsAndUpdatesRoutes);
+app.use('/api/acn/team', acnTeamMembersRoutes)
 
 //AREWA HUB
 app.use('/api/arewahub/product', arewaProductRoutes)
@@ -122,6 +126,7 @@ app.use('/api/arewahub/orders', arewaOrdersRoutes)
 app.use('/api/arewahub/events', arewaEventsRoutes)
 app.use('/api/arewahub/faq', arewaFaqRoutes)
 app.use('/api/arewahub/contactUs', arewaContactUsRoutes)
+
 
 //EDU AFRICA
 app.use('/api/eduafrica/contactUs', eduafricaContactUsRoutes);

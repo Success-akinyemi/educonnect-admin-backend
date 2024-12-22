@@ -17,6 +17,7 @@ export async function verifyOtp(req, res) {
         if (getOtp.accountType === 'admin') {
             getUser = await AdminModel.findById({ _id: getOtp.userId });
         }
+        console.log('USER DATA', getUser, getOtp)
         getUser.verified = true
         await getUser.save()
 

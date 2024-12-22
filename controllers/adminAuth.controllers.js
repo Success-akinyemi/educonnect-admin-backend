@@ -146,7 +146,7 @@ export async function login(req, res) {
         if (!getUser.verified) {
             const otpExist = await OtpModel.findOne({ email });
             if (!otpExist) {
-                const otpCode = await generateOtp(getUser._id, getUser.email);
+                const otpCode = await generateOtp(getUser._id, getUser.accountType);
                 console.log('OTP', otpCode);
 
                 try {

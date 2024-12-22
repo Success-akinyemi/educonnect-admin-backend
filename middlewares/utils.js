@@ -16,11 +16,13 @@ export async function generateOtp(userId, accountType) {
         exists = await OtpModel.findOne({ code: otp });
     }
 
-    const otpCode = await new OtpModel({
+    const otpCode = await OtpModel.create({
         userId: userId,
         code: otp,
         accountType: accountType
-    }).save();
+    });
+
+    console.log('NEW OTP MODEL', otpCode)
 
     return otp; 
 }

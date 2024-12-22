@@ -8,7 +8,7 @@ info:
   license:
     name: Apache 2.0
     url: 'http://apache.org/'
-host: educonnect-admin-backend.onrender.com
+host: edu-connect-admin-server.onrender.com
 basePath: /               
 schemes:
   - https
@@ -252,6 +252,35 @@ paths:
           description: Success
         500:
           description: Server error 
+
+  /api/arewahub/team/getAllTeam:
+    get:
+      summary: Get team memebesr for arewa hub
+      description: Get team memebesr for arewa hub
+      responses:
+        200:
+          description: Success
+        500:
+          description: Server error   
+
+  /api/arewahub/team/getTeam/{id}:
+    get:
+      summary: Get a specific team member
+      description: Get a specific team member using there `teamMemberId`.
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: The ID of the team member to retrieve
+          schema:
+            type: string
+      responses:
+        201: 
+          description: Successful
+        400:
+          description: User error
+        500: 
+          description: Server error
 
   /api/acn/contactUs/sendMessage:
     post:
