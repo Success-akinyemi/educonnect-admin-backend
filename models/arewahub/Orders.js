@@ -13,6 +13,9 @@ const OrdersSchema = new mongoose.Schema({
         type: String,
         required: [ true, 'Customer Phone Number is required' ]
     },
+    address: {
+        type: String,
+    },
     amount: {
         type: Number,
     },

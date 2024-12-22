@@ -3,7 +3,7 @@ import OrderModel from "../../models/arewahub/Orders.js"
 import ProductModel from "../../models/arewahub/Product.js"
 
 export async function newOrder(req, res) {
-    const { customerName, customerEmail, phoneNumber, items } = req.body;
+    const { customerName, customerEmail, phoneNumber, address, items } = req.body;
 
     if (!customerName) {
         return res.status(400).json({ success: false, data: 'Customer name is required' });
@@ -13,6 +13,9 @@ export async function newOrder(req, res) {
     }
     if (!phoneNumber) {
         return res.status(400).json({ success: false, data: 'Customer phone number is required' });
+    }
+    if (!address) {
+        return res.status(400).json({ success: false, data: 'Customer address is required' });
     }
     if (items?.length < 1) {
         return res.status(400).json({ success: false, data: 'At least one product is required' });
@@ -62,6 +65,7 @@ export async function newOrder(req, res) {
             customerName,
             customerEmail,
             phoneNumber,
+            address,
             amount: totalAmount,
             items: productDetails,
             orderId: orderId,
