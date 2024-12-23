@@ -1,6 +1,6 @@
-import { v2 as cloudinary } from "cloudinary";
-import TeamModel from "../../models/eduafrica/Team.js";
 import { generateUniqueCode } from "../../middlewares/utils.js";
+import TeamModel from "../../models/eduafrica/Team.js";
+import { v2 as cloudinary } from "cloudinary";
 
 // Cloudinary Configuration
 cloudinary.config({
@@ -60,19 +60,32 @@ export const newTeam = async (req, res) => {
 
 
 export async function editeam(req, res) {
-    const { id, firstName, lastName, position, image, linkedinHandle, twitterHandle, instagramHandle } = req.body
+    const { id, firstName, lastName, position, linkedinHandle, twitterHandle, instagramHandle } = req.body
     try {
         const getTeamMember = await TeamModel.findOne({ teamMemberId: id })
         if(!getTeamMember){
             return res.status(404).json({ success: false, data: 'Team Memeber not found' })
         }
 
-        let imageUrl
-        if(image){
-            const result = await cloudinary.uploader.upload(image)
+        let imageUrl = null;
 
-            imageUrl = result.url
+        if (req.file) {
+            // Upload to Cloudinary
+            const uploadResult = await new Promise((resolve, reject) => {
+                const uploadStream = cloudinary.uploader.upload_stream(
+                    { folder: "team_images" },
+                    (error, result) => {
+                        if (error) return reject(error);
+                        resolve(result);
+                    }
+                );
+                uploadStream.end(req.file.buffer); // Send the file buffer
+            });
+
+            imageUrl = uploadResult.secure_url;
+
         }
+
 
         const updateTeamMember = await TeamModel.findByIdAndUpdate(
             getTeamMember?._id,
