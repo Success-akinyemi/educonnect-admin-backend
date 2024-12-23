@@ -11,6 +11,10 @@ router.post('/deleteEvent', AuthenticateAdmin, controllers.deleteEvent)
 
 //GET ROUTES
 router.get('/getEvents', controllers.getEvents)
+
+router.get('/getPastEvents', controllers.getEvents)
+router.get('/getFutureEvents', controllers.getEvents)
+
 router.get('/getEvent/:id', controllers.getEvent)
 
 export default router
