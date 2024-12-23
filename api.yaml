@@ -332,7 +332,7 @@ paths:
               - lastName
               - email
               - phoneNumber
-              - address
+              - country
               - amount
             properties:
               firstName:
@@ -343,7 +343,7 @@ paths:
                 type: string
               phoneNumber:
                 type: string
-              address:
+              country:
                 type: string
               amount: 
                 type: number

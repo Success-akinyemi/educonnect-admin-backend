@@ -2,8 +2,8 @@ import { generateUniqueCode } from "../../middlewares/utils.js"
 import DonationModel from "../../models/acn/Donations.js"
 
 export async function newDonation(req, res) {
-    const { firstName, lastName, email, phoneNumber, address, amount, } = req.body
-    if(!firstName || !lastName || !email || !phoneNumber || !address || !amount){
+    const { firstName, lastName, email, phoneNumber, country, amount, } = req.body
+    if(!firstName || !lastName || !email || !phoneNumber || !country || !amount){
         return res.status(400).json({ success: false, data: 'Fill all fields.' })
     }
     try {
@@ -11,7 +11,7 @@ export async function newDonation(req, res) {
         console.log('DONATION ID', donationId)
 
         const newTeamMember = await DonationModel.create({
-            firstName, lastName, email, phoneNumber, address, donationId, amount
+            firstName, lastName, email, phoneNumber, country, donationId, amount
         })
         
         res.status(210).json({ success: false, data: 'Donation created' })

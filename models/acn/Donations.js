@@ -13,7 +13,7 @@ const DonationSchema = new mongoose.Schema({
     phoneNumber: {
         type: String
     },
-    address: {
+    country: {
         type: String
     },
     amount: {
