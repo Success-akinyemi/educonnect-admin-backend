@@ -10,7 +10,7 @@ cloudinary.v2.config({
 
 //NEW EVENT
 export async function newEvent(req, res) {
-    const { eventName, location, speakers, schedule, image } = req.body
+    const { eventName, location, speakers, schedule, image, eventDate, eventTime } = req.body
     if(!eventName){
           return res.status(400).json({ success: false, data: 'Event name is required' })
     }
@@ -26,7 +26,7 @@ export async function newEvent(req, res) {
         }
 
         const newEvent = await EventModel.create({
-            eventName, location, speakers, schedule, eventId: eventId, image: imageUrl
+            eventName, location, speakers, schedule, eventDate, eventTime, eventId: eventId, image: imageUrl
         })
 
         res.status(201).json({ success: true, data: 'New Event created' })
@@ -38,8 +38,8 @@ export async function newEvent(req, res) {
 
 //UPDATE EVENT
 export async function updateEvent(req, res) {
-    const { id, eventName, location, speakers, schedule, image } = req.body;
-
+    const { id, eventName, location, speakers, schedule, image, eventDate, eventTime } = req.body;
+    console.log(req.body)
     try {
         // Find the event by eventId
         const findEvent = await EventModel.findOne({ eventId: id });
@@ -63,6 +63,8 @@ export async function updateEvent(req, res) {
                     speakers,
                     schedule,
                     image: imageUrl,
+                    eventDate, 
+                    eventTime
                 },
             },
             { new: true } // Return the updated document
@@ -71,6 +73,7 @@ export async function updateEvent(req, res) {
         if (!updatedEventData) {
             return res.status(400).json({ success: false, data: 'Unable to update event data' });
         }
+        console.log('updatedEventData', updatedEventData)
 
         res.status(201).json({ success: true, data: 'Event data updated', event: updatedEventData });
     } catch (error) {

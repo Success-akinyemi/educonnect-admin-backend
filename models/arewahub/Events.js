@@ -8,6 +8,12 @@ const EventSchema = new mongoose.Schema({
     location: {
         type: String
     },
+    eventDate: {
+        type: String
+    },
+    eventTime: {
+        type: String
+    },
     eventId: {
         type: String,
         required: [ true, 'Event Id is required' ],
