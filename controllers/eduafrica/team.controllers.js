@@ -35,10 +35,9 @@ export const newTeam = async (req, res) => {
 
             imageUrl = uploadResult.secure_url;
 
-            console.log('object', imageUrl,uploadResult )
         }
 
-        await TeamModel.create({
+        const newMember = await TeamModel.create({
             firstName,
             lastName,
             position,
@@ -49,6 +48,8 @@ export const newTeam = async (req, res) => {
             image: imageUrl,
             teamMemberId: teamID,
         });
+
+        console.log('MEMEM', newMember)
 
         res.status(201).json({ success: true, data: "New team member created successfully." });
     } catch (error) {
