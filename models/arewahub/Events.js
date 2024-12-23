@@ -28,6 +28,9 @@ const EventSchema = new mongoose.Schema({
     image: {
         type: String
     },
+    eventGallery: {
+        type: Array
+    },
     active: {
         type: Boolean,
         default: true

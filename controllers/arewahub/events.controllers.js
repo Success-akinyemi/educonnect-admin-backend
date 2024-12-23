@@ -10,7 +10,7 @@ cloudinary.v2.config({
 
 //NEW EVENT
 export async function newEvent(req, res) {
-    const { eventName, location, speakers, schedule, image, eventDate, eventTime } = req.body
+    const { eventName, location, speakers, schedule, image, eventDate, eventTime, eventGallery } = req.body
     if(!eventName){
           return res.status(400).json({ success: false, data: 'Event name is required' })
     }
@@ -25,8 +25,20 @@ export async function newEvent(req, res) {
             imageUrl = result.url
         }
 
+        let galleryUrls = [];
+        if(eventGallery){
+            if (Array.isArray(eventGallery) && eventGallery.length > 0) {
+              galleryUrls = await Promise.all(
+                eventGallery.map(async (galleryImage) => {
+                  const result = await cloudinary.uploader.upload(galleryImage);
+                  return result.url;
+                })
+              );
+            }
+        }
+
         const newEvent = await EventModel.create({
-            eventName, location, speakers, schedule, eventDate, eventTime, eventId: eventId, image: imageUrl
+            eventName, location, speakers, schedule, eventDate, eventTime, eventId: eventId, image: imageUrl, eventGallery: galleryUrls 
         })
 
         res.status(201).json({ success: true, data: 'New Event created' })
@@ -38,7 +50,7 @@ export async function newEvent(req, res) {
 
 //UPDATE EVENT
 export async function updateEvent(req, res) {
-    const { id, eventName, location, speakers, schedule, image, eventDate, eventTime } = req.body;
+    const { id, eventName, location, speakers, schedule, image, eventDate, eventTime, eventGallery } = req.body;
     console.log(req.body)
     try {
         // Find the event by eventId
@@ -53,6 +65,18 @@ export async function updateEvent(req, res) {
             imageUrl = result.url;
         }
 
+        let galleryUrls = [];
+        if(eventGallery){
+            if (Array.isArray(eventGallery) && eventGallery.length > 0) {
+              galleryUrls = await Promise.all(
+                eventGallery.map(async (galleryImage) => {
+                  const result = await cloudinary.uploader.upload(galleryImage);
+                  return result.url;
+                })
+              );
+            }
+        }
+
         // Update the event using the ID
         const updatedEventData = await EventModel.findByIdAndUpdate(
             findEvent._id, // Correctly reference the ID
@@ -64,7 +88,8 @@ export async function updateEvent(req, res) {
                     schedule,
                     image: imageUrl,
                     eventDate, 
-                    eventTime
+                    eventTime,
+                    eventGallery: galleryUrls
                 },
             },
             { new: true } // Return the updated document
