@@ -7,7 +7,7 @@ const router = express.Router()
 
 //POST ROUTES
 router.post('/newTeam', upload.single("image"), controllers.newTeam )
-router.post('/editeam', AuthenticateAdmin, controllers.editeam )
+router.post('/editeam', upload.single("image"), AuthenticateAdmin, controllers.editeam )
 router.post('/toggleActiveStatus', AuthenticateAdmin, controllers.toggleActiveStatus )
 router.post('/deleteTeamMember', AuthenticateAdmin, controllers.deleteTeamMember)
 
