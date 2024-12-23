@@ -13,7 +13,13 @@ const TeamSchema = new mongoose.Schema({
     email: {
         type: String
     },
-    phoneNumber: {
+    linkedinHandle: {
+        type: String
+    },
+    twitterHandle: {
+        type: String
+    },
+    instagramHandle: {
         type: String
     },
     image: {

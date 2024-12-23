@@ -2,7 +2,7 @@ import { generateUniqueCode } from "../../middlewares/utils.js"
 import TeamModel from "../../models/educonnect/Team.js"
 
 export async function newTeam(req, res) {
-    const { firstName, lastName, position, image, email, phoneNumber } = req.body
+    const { firstName, lastName, position, image, email, linkedinHandle, twitterHandle, instagramHandle } = req.body
     if(!firstName || !lastName || !position){
         return res.status(400).json({ success: false, data: 'First name, last name and position feilds are required.' })
     }
@@ -11,8 +11,7 @@ export async function newTeam(req, res) {
         console.log('TEAM ID', teamID)
 
         const newTeamMember = await TeamModel.create({
-            firstName, lastName, position, image, teamMemberId: teamID, email, phoneNumber
-        })
+            firstName, lastName, position, image, teamMemberId: teamID, email, linkedinHandle, twitterHandle, instagramHandle })
         
         res.status(210).json({ success: true, data: 'New Team member created' })
     } catch (error) {
