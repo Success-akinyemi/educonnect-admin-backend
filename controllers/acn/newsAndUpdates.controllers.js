@@ -175,7 +175,7 @@ export async function getUserANewsAndUpdates(req, res) {
             return res.status(404).json({ success: false, data: 'Post with this id deos not exist' })
         }
 
-        if(!findPost?.active || !findPost?.blocked){
+        if(findPost?.active == false || findPost?.blocked == true ){
             return res.status(403).json({ success: false, data: 'Not Allowed' })
         }
 

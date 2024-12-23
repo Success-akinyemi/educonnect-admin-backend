@@ -67,6 +67,35 @@ paths:
         500:
           description: Server error 
 
+  /api/educonnect/team/getAllTeam:
+    get:
+      summary: Get team memebesr for arewa hub
+      description: Get team memebesr for arewa hub
+      responses:
+        200:
+          description: Success
+        500:
+          description: Server error   
+
+  /api/educonnect/team/getTeam/{id}:
+    get:
+      summary: Get a specific team member
+      description: Get a specific team member using there `teamMemberId`.
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: The ID of the team member to retrieve
+          schema:
+            type: string
+      responses:
+        201: 
+          description: Successful
+        400:
+          description: User error
+        500: 
+          description: Server error
+
   /api/acn/contactUs/sendMessage:
     post:
       summary: send a contact us message
@@ -350,6 +379,35 @@ paths:
       responses:
         201: 
           description: Donation Submitted Successful
+        400:
+          description: User error
+        500: 
+          description: Server error
+
+  /api/acn/team/getAllTeam:
+    get:
+      summary: Get team memebesr for african childe network
+      description: Get team memebesr for african childe network
+      responses:
+        200:
+          description: Success
+        500:
+          description: Server error   
+
+  /api/acn/team/getTeam/{id}:
+    get:
+      summary: Get a specific team member
+      description: Get a specific team member using there `teamMemberId`.
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: The ID of the team member to retrieve
+          schema:
+            type: string
+      responses:
+        201: 
+          description: Successful
         400:
           description: User error
         500: 
