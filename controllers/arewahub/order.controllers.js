@@ -112,9 +112,10 @@ export async function togglePayment(req, res) {
         }
 
         order.paid = !order.paid
+        await order.save()
 
 
-        res.status(200).json({ success: false, data: 'Order payment status updated' })
+        res.status(200).json({ success: true, data: 'Order payment status updated' })
     } catch (error) {
         console.log('UNABLE TO TOGGLE ORDER APPROVAL', error)
         res.status(500).json({ success: false, data: 'Unable to toggle order approval' })
