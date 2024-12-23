@@ -1,5 +1,12 @@
 import { generateUniqueCode } from "../../middlewares/utils.js"
 import TeamModel from "../../models/educonnect/Team.js"
+import cloudinary from "cloudinary";
+
+cloudinary.v2.config({
+    cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+    api_key: process.env.CLOUDINARY_API_KEY,
+    api_secret: process.env.CLOUDINARY_API_SECRET,
+  });
 
 export async function newTeam(req, res) {
     const { firstName, lastName, position, image, email, linkedinHandle, twitterHandle, instagramHandle } = req.body
@@ -10,8 +17,15 @@ export async function newTeam(req, res) {
         const teamID = await generateUniqueCode(8)
         console.log('TEAM ID', teamID)
 
+        let imageUrl
+        if(image){
+            const result = await cloudinary.uploader.upload(image)
+
+            imageUrl = result.url
+        }
+
         const newTeamMember = await TeamModel.create({
-            firstName, lastName, position, image, teamMemberId: teamID, email, linkedinHandle, twitterHandle, instagramHandle })
+            firstName, lastName, position, image: imageUrl, teamMemberId: teamID, email, linkedinHandle, twitterHandle, instagramHandle })
         
         res.status(210).json({ success: true, data: 'New Team member created' })
     } catch (error) {
@@ -21,11 +35,18 @@ export async function newTeam(req, res) {
 }
 
 export async function editeam(req, res) {
-    const { id, firstName, lastName, position, image } = req.body
+    const { id, firstName, lastName, position, image, linkedinHandle, twitterHandle, instagramHandle } = req.body
     try {
         const getTeamMember = await TeamModel.findOne({ teamMemberId: id })
         if(!getTeamMember){
             return res.status(404).json({ success: false, data: 'Team Memeber not found' })
+        }
+
+        let imageUrl
+        if(image){
+            const result = await cloudinary.uploader.upload(image)
+
+            imageUrl = result.url
         }
 
         const updateTeamMember = await TeamModel.findByIdAndUpdate(
@@ -34,8 +55,11 @@ export async function editeam(req, res) {
                 $set: {
                     firstName,
                     lastName,
-                    image,
-                    position
+                    image: imageUrl,
+                    position,
+                    linkedinHandle, 
+                    twitterHandle, 
+                    instagramHandle
                 }
             },
             { new: true}

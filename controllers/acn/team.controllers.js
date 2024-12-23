@@ -1,5 +1,12 @@
 import { generateUniqueCode } from "../../middlewares/utils.js"
 import TeamModel from "../../models/acn/Team.js"
+import cloudinary from "cloudinary";
+
+cloudinary.v2.config({
+    cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+    api_key: process.env.CLOUDINARY_API_KEY,
+    api_secret: process.env.CLOUDINARY_API_SECRET,
+  });
 
 export async function newTeam(req, res) {
     const { firstName, lastName, position, image, email, linkedinHandle, twitterHandle, instagramHandle } = req.body
@@ -10,8 +17,15 @@ export async function newTeam(req, res) {
         const teamID = await generateUniqueCode(8)
         console.log('TEAM ID', teamID)
 
+        let imageUrl
+        if(image){
+            const result = await cloudinary.uploader.upload(image)
+
+            imageUrl = result.url
+        }
+
         const newTeamMember = await TeamModel.create({
-            firstName, lastName, position, image, teamMemberId: teamID, email, linkedinHandle, twitterHandle, instagramHandle })
+            firstName, lastName, position, image: imageUrl, teamMemberId: teamID, email, linkedinHandle, twitterHandle, instagramHandle })
         
         res.status(210).json({ success: true, data: 'New Team member created' })
     } catch (error) {
@@ -28,13 +42,20 @@ export async function editeam(req, res) {
             return res.status(404).json({ success: false, data: 'Team Memeber not found' })
         }
 
+        let imageUrl
+        if(image){
+            const result = await cloudinary.uploader.upload(image)
+
+            imageUrl = result.url
+        }
+
         const updateTeamMember = await TeamModel.findByIdAndUpdate(
             getTeamMember?._id,
             {
                 $set: {
                     firstName,
                     lastName,
-                    image,
+                    image: imageUrl,
                     position,
                     linkedinHandle, 
                     twitterHandle, 
