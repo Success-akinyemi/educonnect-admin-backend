@@ -2,7 +2,7 @@ import { generateUniqueCode } from "../../middlewares/utils.js"
 import DonationModel from "../../models/acn/Donations.js"
 
 export async function newDonation(req, res) {
-    const { firstName, lastName, email, phoneNumber, country, amount, } = req.body
+    const { firstName, lastName, email, phoneNumber, country, amount, type } = req.body
     if(!firstName || !lastName || !email || !phoneNumber || !country || !amount){
         return res.status(400).json({ success: false, data: 'Fill all fields.' })
     }

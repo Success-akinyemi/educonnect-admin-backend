@@ -25,6 +25,9 @@ const DonationSchema = new mongoose.Schema({
     },
     donationId: {
         type: String
+    },
+    type: {
+        String
     }
 },
 { timestamps: true} 
