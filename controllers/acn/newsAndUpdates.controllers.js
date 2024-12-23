@@ -1,3 +1,4 @@
+import mongoose from "mongoose";
 import { generateUniqueCode } from "../../middlewares/utils.js"
 import NewsAndUpdatesModel from "../../models/acn/NewsAndUpdates.js"
 import cloudinary from "cloudinary";
@@ -134,20 +135,26 @@ export async function getAllNewsAndUpdates(req, res) {
 }
 
 export async function getANewsAndUpdates(req, res) {
-    const { id } = req.params
+    const { id } = req.params;
+
+    // Validate the ID
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+        return res.status(400).json({ success: false, data: 'Invalid ID format' });
+    }
+
     try {
-        const findPost = await NewsAndUpdatesModel.findById({ _id: id })
-        if(!findPost){
-            return res.status(404).json({ success: false, data: 'Post with this id deos not exist' })
+        const findPost = await NewsAndUpdatesModel.findById(id);
+
+        if (!findPost) {
+            return res.status(404).json({ success: false, data: 'Post with this ID does not exist' });
         }
 
-        res.status(200).json({ success: true, data: findPost })
+        res.status(200).json({ success: true, data: findPost });
     } catch (error) {
-        console.log('UNABLE TO GET POST', error)
-        res.status(500).json({ success: false, data: 'Unable to get post' })
+        console.error('UNABLE TO GET POST', error);
+        res.status(500).json({ success: false, data: 'Unable to get post' });
     }
 }
-
 //USERS
 export async function getUserAllNewsAndUpdates(req, res) {
     try {

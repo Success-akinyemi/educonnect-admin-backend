@@ -14,7 +14,7 @@ export async function newTeam(req, res) {
             firstName, lastName, position, image, teamMemberId: teamID, email, phoneNumber
         })
         
-        res.status(210).json({ success: false, data: 'New Team member created' })
+        res.status(210).json({ success: true, data: 'New Team member created' })
     } catch (error) {
         console.log('UNABLE TO CREATE NEW TEAM MEMBER', error)
         res.status(500).json({ success: false, data: 'Unable to create new team member' })
@@ -53,7 +53,7 @@ export async function getAllTeam(req, res) {
     try {
         const getAllTeamMemebers = await TeamModel.find().select('-_id')
 
-        res.status(200).json({ success: false, data: getAllTeamMemebers })
+        res.status(200).json({ success: true, data: getAllTeamMemebers })
     } catch (error) {
         console.log('UNABLE TO GET ALL TEAM MEMBER', error)
         res.status(500).json({ success: false, data: 'Unable to get all team member' }) 
@@ -76,7 +76,7 @@ export async function getTeam(req, res) {
 }
 
 export async function toggleActiveStatus(req, res) {
-    const { id } = req.params
+    const { id } = req.body
     try {
         const getTeamMember = await TeamModel.findOne({ teamMemberId: id })
         if(!getTeamMember){
@@ -94,7 +94,7 @@ export async function toggleActiveStatus(req, res) {
 }
 
 export async function deleteTeamMember(req, res) {
-    const { id } = req.params
+    const { id } = req.body
     try {
         const getTeamMember = await TeamModel.findOne({ teamMemberId: id })
         if(!getTeamMember){
