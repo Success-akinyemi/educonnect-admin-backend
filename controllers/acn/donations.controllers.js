@@ -50,7 +50,7 @@ export async function getDonation(req, res) {
 export async function toggleActiveStatus(req, res) {
     const { id } = req.params
     try {
-        const getDonationData = await DonationModel.findOne({ teamMemberId: id })
+        const getDonationData = await DonationModel.findOne({ donationId: id })
         if(!getDonationData){
             return res.status(404).json({ success: false, data: 'Team Memeber not found' })
         }
@@ -68,12 +68,12 @@ export async function toggleActiveStatus(req, res) {
 export async function deleteDonation(req, res) {
     const { id } = req.params
     try {
-        const getDonationData = await DonationModel.findOne({ teamMemberId: id })
+        const getDonationData = await DonationModel.findOne({ donationId: id })
         if(!getDonationData){
             return res.status(404).json({ success: false, data: 'Team Memeber not found' })
         }
 
-        const deleteTeamMember = await DonationModel.findOneAndDelete({ teamMemberId: id })
+        const deleteTeamMember = await DonationModel.findOneAndDelete({ donationId: id })
 
         res.status(200).json({ success: true, data: 'Donation deleted succesful' })
     } catch (error) {
