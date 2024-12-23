@@ -27,7 +27,7 @@ export const newTeam = async (req, res) => {
             });
             imageUrl = result.secure_url;
         }
-        console.log('imageUrl', imageUrl)
+        console.log('imageUrl', result)
 
         await TeamModel.create({
             firstName,
