@@ -93,7 +93,7 @@ export async function approveOrderDelivered(req, res) {
         order.status === 'Approved' ? order.status = 'Pending' : 'Approved'
 
 
-        res.status(200).json({ success: false, data: 'Order Status updated' })
+        res.status(200).json({ success: true, data: 'Order Status updated' })
     } catch (error) {
         console.log('UNABLE TO TOGGLE ORDER APPROVAL', error)
         res.status(500).json({ success: false, data: 'Unable to toggle order approval' })
