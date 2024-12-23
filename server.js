@@ -77,6 +77,10 @@ app.use(express.json());
 
 app.use(express.urlencoded({ extended: true })); // Parses URL-encoded data
 
+app.use(express.json({ limit: '50mb' })); // Adjust the limit as needed
+app.use(express.urlencoded({ limit: '50mb', extended: true }));
+
+
 // Set up bodyParser to parse incoming requests
 app.use(bodyParser.json({ limit: '50mb' }));
 app.use(bodyParser.urlencoded({ limit: '50mb', extended: true }));

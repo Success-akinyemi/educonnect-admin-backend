@@ -21,7 +21,7 @@ export async function newTeam(req, res) {
 }
 
 export async function editeam(req, res) {
-    const { id, firstName, lastName, position, image } = req.body
+    const { id, firstName, lastName, position, image, linkedinHandle, twitterHandle, instagramHandle } = req.body
     try {
         const getTeamMember = await TeamModel.findOne({ teamMemberId: id })
         if(!getTeamMember){
@@ -35,7 +35,10 @@ export async function editeam(req, res) {
                     firstName,
                     lastName,
                     image,
-                    position
+                    position,
+                    linkedinHandle, 
+                    twitterHandle, 
+                    instagramHandle
                 }
             },
             { new: true}

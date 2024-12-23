@@ -10,7 +10,7 @@ cloudinary.v2.config({
 
 //ADD PRODUCT
 export async function addProdcut(req, res) {
-    const { productName, quantityInStock, price, description, image, productType } = req.body
+    const { productName, quantityInStock, price, priceCurrency, description, image, productType } = req.body
     if(!productName){
         return res.status(400).json({ success: true, data: 'Provide a product name' })
     }
@@ -19,6 +19,9 @@ export async function addProdcut(req, res) {
     }
     if(!price){
         return res.status(400).json({ success: false, data: 'Product price is required' })
+    }
+    if(!priceCurrency){
+        return res.status(400).json({ success: false, data: 'Product price currency is required' })
     }
     if(!productType){
         return res.status(400).json({ success: false, data: 'Product price is required' })
@@ -35,7 +38,7 @@ export async function addProdcut(req, res) {
         }
 
         const newProduct = await ProductModel.create({
-            productName, productId: productCode, quantityInStock, price, description, image: imageUrl, productType
+            productName, productId: productCode, quantityInStock, price, description, image: imageUrl, productType, priceCurrency
         })
         
         res.status(201).json({ success: true, data: 'New Product created' })
@@ -46,7 +49,7 @@ export async function addProdcut(req, res) {
 }
 
 export async function editProduct(req, res) {
-    const { _id, productName, quantityInStock, price, description, image } = req.body
+    const { _id, productName, quantityInStock, price, description, image, priceCurrency } = req.body
 
     try {
         const getProduct = await ProductModel.findOne({ productId: _id })
@@ -70,6 +73,7 @@ export async function editProduct(req, res) {
                     price,
                     description,
                     image: imageUrl
+                    priceCurrency
                 },
             },
             { new: true }
