@@ -19,6 +19,7 @@ import subscribeRoutes from './routes/suscribe.routes.js';
 //EDUCONNECT
 import educonnectContactUsRoutes from './routes/educonnect/contactUs.routes.js';
 import educonnectFaqRoutes from './routes/educonnect/faq.routes.js';
+import educonnectTeamMembersRoutes from './routes/educonnect/team.routes.js';
 
 //ACN
 import acnContactUsRoutes from './routes/acn/contactUs.routes.js';
@@ -34,6 +35,7 @@ import arewaOrdersRoutes from './routes/arewahub/orders.routes.js'
 import arewaEventsRoutes from './routes/arewahub/event.routes.js'
 import arewaFaqRoutes from './routes/arewahub/faq.routes.js';
 import arewaContactUsRoutes from './routes/arewahub/contactUs.routes.js';
+import arewaTeamMembersRoutes from './routes/arewahub/team.routes.js';
 
 
 //EDUCONNECT
@@ -113,9 +115,10 @@ app.use('/api/suscribe', subscribeRoutes);
 app.use('/api/testimony', testimonialsRoutes);
 
 
-//acn
+//EDUCONNECT
 app.use('/api/educonnect/contactUs', educonnectContactUsRoutes);
 app.use('/api/educonnect/faq', educonnectFaqRoutes);
+app.use('/api/educonnect/team', educonnectTeamMembersRoutes)
 
 //ACN
 app.use('/api/acn/contactUs', acnContactUsRoutes);
@@ -131,6 +134,7 @@ app.use('/api/arewahub/orders', arewaOrdersRoutes)
 app.use('/api/arewahub/events', arewaEventsRoutes)
 app.use('/api/arewahub/faq', arewaFaqRoutes)
 app.use('/api/arewahub/contactUs', arewaContactUsRoutes)
+app.use('/api/arewahub/team', arewaTeamMembersRoutes)
 
 
 //EDU AFRICA

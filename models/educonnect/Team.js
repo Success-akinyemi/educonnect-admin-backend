@@ -30,5 +30,5 @@ const TeamSchema = new mongoose.Schema({
 { timestamps: true }
 )
 
-const TeamModel = mongoose.model('acnteammember', TeamSchema)
+const TeamModel = mongoose.model('educonnectteammember', TeamSchema)
 export default TeamModel
