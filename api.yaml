@@ -317,6 +317,44 @@ paths:
         500: 
           description: Server error
 
+  /api/acn/donation/newDonation:
+    post:
+      summary: make a new donation
+      description: Make a new Donation
+      parameters:
+        - name: body
+          in: body
+          required: true
+          schema:
+            type: object
+            required:
+              - firstName
+              - lastName
+              - email
+              - phoneNumber
+              - address
+              - amount
+            properties:
+              firstName:
+                type: string
+              lastName:
+                type: string
+              email:
+                type: string
+              phoneNumber:
+                type: string
+              address:
+                type: string
+              amount: 
+                type: number
+      responses:
+        201: 
+          description: Donation Submitted Successful
+        400:
+          description: User error
+        500: 
+          description: Server error
+
   /api/eduafrica/contactUs/sendMessage:
     post:
       summary: send a contact us message

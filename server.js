@@ -25,6 +25,8 @@ import acnContactUsRoutes from './routes/acn/contactUs.routes.js';
 import acnFaqRoutes from './routes/acn/faq.routes.js';
 import acnNewsAndUpdatesRoutes from './routes/acn/newsAndUpdates.routes.js';
 import acnTeamMembersRoutes from './routes/acn/team.routes.js';
+import acnDonationsRoutes from './routes/acn/donation.routes.js';
+
 
 //AREWA HUB
 import arewaProductRoutes from './routes/arewahub/product.route.js'
@@ -120,6 +122,8 @@ app.use('/api/acn/contactUs', acnContactUsRoutes);
 app.use('/api/acn/faq', acnFaqRoutes);
 app.use('/api/acn/newsAndUpdates', acnNewsAndUpdatesRoutes);
 app.use('/api/acn/team', acnTeamMembersRoutes)
+app.use('/api/acn/donation', acnDonationsRoutes)
+
 
 //AREWA HUB
 app.use('/api/arewahub/product', arewaProductRoutes)

@@ -1,5 +1,13 @@
 import { generateUniqueCode } from "../../middlewares/utils.js"
 import NewsAndUpdatesModel from "../../models/acn/NewsAndUpdates.js"
+import cloudinary from "cloudinary";
+
+cloudinary.v2.config({
+    cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+    api_key: process.env.CLOUDINARY_API_KEY,
+    api_secret: process.env.CLOUDINARY_API_SECRET,
+  });
+
 
 function convertCategoryToArray(categoryString) {
     return categoryString.split(',').map(category => category.trim());
@@ -26,8 +34,15 @@ export async function newNews(req, res) {
 
         const categoryArray = convertCategoryToArray(category);
 
+        let imageUrl
+        if(image){
+            const result = await cloudinary.uploader.upload(image)
+
+            imageUrl = result.url
+        }
+
         const newPostData = await NewsAndUpdatesModel.create({
-            title, post, postId: newPostId, category: categoryArray, image, writers, writerEmail: email, writerId: staffID
+            title, post, postId: newPostId, category: categoryArray, image: imageUrl, writers, writerEmail: email, writerId: staffID
         })
 
         res.status(201).json({ success: true, data: 'New Post created successful' })
@@ -38,8 +53,35 @@ export async function newNews(req, res) {
 }
 
 export async function updateNews(req, res) {
+    const { id, title, post, category, image, writers } = req.body
     try {
-        
+        const findPost = await NewsAndUpdatesModel.findById({ _id: id })
+        if(!findPost){
+            return res.status(404).json({ success: false, data: 'Post with this id deos not exist' })
+        }
+
+        let imageUrl
+        if(image){
+            const result = await cloudinary.uploader.upload(image)
+
+            imageUrl = result.url
+        }
+
+        const updatePost = await NewsAndUpdatesModel.findByIdAndUpdate(
+            id,
+            {
+                $set: {
+                    title,
+                    post,
+                    category,
+                    image: imageUrl,
+                    writers
+                }
+            },
+            { new: true }
+        )
+
+        res.status(201).json({ success: true, data: 'Updated successfull' })
     } catch (error) {
         console.log('UNABLE TO UPDATE NEWS POSTS', error)
         res.status(500).json({ success: false, data: 'Unable to update news posts' })

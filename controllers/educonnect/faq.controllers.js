@@ -27,20 +27,31 @@ export async function newFaq(req, res) {
 export async function updateFaq(req, res) {
     const { id, question, answer } = req.body;
 
-    if (!id || !question || !answer) {
-        return res.status(400).json({ success: false, data: 'ID, question, and answer are required' });
+    if (!id) {
+        return res.status(400).json({ success: false, data: 'ID is required' });
+    }
+
+    // Prepare update object based on provided data
+    const updateData = {};
+
+    if (question) {
+        updateData['faqs.$.question'] = question;
+    }
+
+    if (answer) {
+        updateData['faqs.$.answer'] = answer;
+    }
+
+    // If neither question nor answer is provided, return an error
+    if (Object.keys(updateData).length === 0) {
+        return res.status(400).json({ success: false, data: 'Question or answer is required to update' });
     }
 
     try {
         const updatedFaq = await FaqModel.findOneAndUpdate(
             { 'faqs._id': id }, 
-            { 
-                $set: { 
-                    'faqs.$.question': question, 
-                    'faqs.$.answer': answer 
-                } 
-            }, 
-            { new: true } 
+            { $set: updateData }, 
+            { new: true }
         );
 
         if (!updatedFaq) {
