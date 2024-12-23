@@ -1,38 +1,51 @@
-import { generateUniqueCode } from "../../middlewares/utils.js"
-import TeamModel from "../../models/eduafrica/Team.js"
-import cloudinary from "cloudinary";
+import { v2 as cloudinary } from "cloudinary";
+import TeamModel from "../../models/eduafrica/Team.js";
+import { generateUniqueCode } from "../../middlewares/utils.js";
 
-cloudinary.v2.config({
+// Cloudinary Configuration
+cloudinary.config({
     cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
     api_key: process.env.CLOUDINARY_API_KEY,
     api_secret: process.env.CLOUDINARY_API_SECRET,
-  });
+});
 
-export async function newTeam(req, res) {
-    const { firstName, lastName, position, image, email, linkedinHandle, twitterHandle, instagramHandle } = req.body
-    if(!firstName || !lastName || !position){
-        return res.status(400).json({ success: false, data: 'First name, last name and position feilds are required.' })
+export const newTeam = async (req, res) => {
+    const { firstName, lastName, position, email, linkedinHandle, twitterHandle, instagramHandle } = req.body;
+
+    if (!firstName || !lastName || !position) {
+        return res.status(400).json({ success: false, data: "First name, last name, and position fields are required." });
     }
+
     try {
-        const teamID = await generateUniqueCode(8)
-        console.log('TEAM ID', teamID)
+        const teamID = await generateUniqueCode(8);
+        let imageUrl = null;
 
-        let imageUrl
-        if(image){
-            const result = await cloudinary.uploader.upload(image)
-
-            imageUrl = result.url
+        if (req.file) {
+            // Upload to Cloudinary
+            const result = await cloudinary.uploader.upload_stream({ folder: "team_images" }, (stream) => {
+                req.file.stream.pipe(stream);
+            });
+            imageUrl = result.secure_url;
         }
 
-        const newTeamMember = await TeamModel.create({
-            firstName, lastName, position, image: imageUrl, teamMemberId: teamID, email, linkedinHandle, twitterHandle, instagramHandle })
-        
-        res.status(210).json({ success: true, data: 'New Team member created' })
+        await TeamModel.create({
+            firstName,
+            lastName,
+            position,
+            email,
+            linkedinHandle,
+            twitterHandle,
+            instagramHandle,
+            image: imageUrl,
+            teamMemberId: teamID,
+        });
+
+        res.status(201).json({ success: true, data: "New team member created successfully." });
     } catch (error) {
-        console.log('UNABLE TO CREATE NEW TEAM MEMBER', error)
-        res.status(500).json({ success: false, data: 'Unable to create new team member' })
+        console.error("Error creating new team member:", error);
+        res.status(500).json({ success: false, data: "Unable to create new team member." });
     }
-}
+};
 
 export async function editeam(req, res) {
     const { id, firstName, lastName, position, image, linkedinHandle, twitterHandle, instagramHandle } = req.body
