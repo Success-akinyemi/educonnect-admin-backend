@@ -72,7 +72,7 @@ export async function editProduct(req, res) {
                     quantityInStock,
                     price,
                     description,
-                    image: imageUrl
+                    image: imageUrl,
                     priceCurrency
                 },
             },
