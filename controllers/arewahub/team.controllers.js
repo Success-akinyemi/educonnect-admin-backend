@@ -65,7 +65,7 @@ export async function editeam(req, res) {
             },
             { new: true}
         )
-
+        console.log('AREWA HUB UPDATE TEAM MEMBER DATA', updateTeamMember)
         res.status(201).json({ success: true, data: 'Team member updated' })
     } catch (error) {
         console.log('UNABLE TO UPDATE TEAM MEMBER', error)
