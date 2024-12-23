@@ -40,6 +40,7 @@ import arewaTeamMembersRoutes from './routes/arewahub/team.routes.js';
 
 //EDUCONNECT
 import eduafricaContactUsRoutes from './routes/eduafrica/contactUs.routes.js';
+import eduafricaTeamMembersRoutes from './routes/eduafrica/team.routes.js';
 
 
 
@@ -139,6 +140,7 @@ app.use('/api/arewahub/team', arewaTeamMembersRoutes)
 
 //EDU AFRICA
 app.use('/api/eduafrica/contactUs', eduafricaContactUsRoutes);
+app.use('/api/eduafrica/team', eduafricaTeamMembersRoutes)
 
 
 // Start server with socket
