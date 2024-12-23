@@ -27,6 +27,10 @@ const ProductSchema = new mongoose.Schema({
     image: {
         type: String
     },
+    productType: {
+        type: String,
+        required: [ true, 'Product type is required' ]
+    },
     active: {
         type: Boolean,
         default: true
@@ -36,4 +40,4 @@ const ProductSchema = new mongoose.Schema({
 )
 
 const ProductModel = mongoose.model('arewahubproduct', ProductSchema)
-export default ProductModel
+export default ProductModel 

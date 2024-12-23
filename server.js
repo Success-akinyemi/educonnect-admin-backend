@@ -45,6 +45,7 @@ const allowedOrigins = [
     process.env.ADMIN_URL,
     process.env.SERVER_URL,
     process.env.ADMIN_FALLBACK_URL,
+    process.env.DEV_URL,
     '*',
 ];
 

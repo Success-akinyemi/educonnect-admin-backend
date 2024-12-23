@@ -1,9 +1,20 @@
+import Mailgen from "mailgen"
 import { sendEmail } from "../middlewares/sendEmail.js"
 import { generateOtp, generateUniqueCode } from "../middlewares/utils.js"
 import AdminModel from "../models/Admin.js"
 import NotificationModel from "../models/NotificationModel.js"
 import OtpModel from "../models/Otp.js"
 import cloudinary from "cloudinary";
+
+const mailGenerator = new Mailgen({
+    theme: 'default',
+    product: {
+        name: 'Edu Africa',
+        link: `${process.env.APP_LINK}`
+    }
+})
+
+
 
 cloudinary.v2.config({
     cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
@@ -216,24 +227,23 @@ export async function login(req, res) {
 
 //FORGOT PASSOWRD
 export async function forgotPassword(req, res) {
-    const { name } = req.body
-    if(!name){
-        return res.status(404).json({ success: false, data: 'Provide your registered email address or staff ID'})
+    const { email } = req.body
+    if(!email){
+        return res.status(400).json({ success: false, data: 'Provide your registered email address or staff ID'})
     }
     try {
-        const isEmail = name.includes('@');
-        console.log('object', name, isEmail)
+        const isEmail = email.includes('@');
+        console.log('object', email, isEmail)
 
             const user = isEmail 
-        ? await AdminModel.findOne({ email: name }) 
-        : await AdminModel.findOne({ staffID: name });
+        ? await AdminModel.findOne({ email: email }) 
+        : await AdminModel.findOne({ staffID: email });
 
         if(!user){
             return res.status(404).json({ success: false, data: 'Email Does Not Exist'})
         }
 
         const resetToken = user.getAdminResetPasswordToken()
-
         await user.save()
         const resetUrl = `${process.env.ADMIN_URL}/reset-password/${resetToken}`
         console.log('RESET TOKEN', resetUrl)
@@ -264,7 +274,8 @@ export async function forgotPassword(req, res) {
 
             try {
                 await sendEmail({
-                    to: user.email,
+                    to: user.email || email,
+                    userEmail: user.email || email,
                     subject: 'Password Reset Request',
                     text: emailTemplate
                 })

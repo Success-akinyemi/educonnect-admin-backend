@@ -10,7 +10,7 @@ cloudinary.v2.config({
 
 //ADD PRODUCT
 export async function addProdcut(req, res) {
-    const { productName, quantityInStock, price, description, image } = req.body
+    const { productName, quantityInStock, price, description, image, productType } = req.body
     if(!productName){
         return res.status(400).json({ success: true, data: 'Provide a product name' })
     }
@@ -20,9 +20,12 @@ export async function addProdcut(req, res) {
     if(!price){
         return res.status(400).json({ success: false, data: 'Product price is required' })
     }
+    if(!productType){
+        return res.status(400).json({ success: false, data: 'Product price is required' })
+    }
     try {
         const productCode = await generateUniqueCode(8)
-        console.log('PROJECT ID', productCode)
+        console.log('PRODUCT ID', productCode)
         
         let imageUrl
         if(image){
@@ -32,7 +35,7 @@ export async function addProdcut(req, res) {
         }
 
         const newProduct = await ProductModel.create({
-            productName, productId: productCode, quantityInStock, price, description, image: imageUrl
+            productName, productId: productCode, quantityInStock, price, description, image: imageUrl, productType
         })
         
         res.status(201).json({ success: true, data: 'New Product created' })

@@ -389,3 +389,38 @@ paths:
           description: User error
         500: 
           description: Server error
+
+  /api/testimony/newTestimony:
+    post:
+      summary: Drop feedbacks by users
+      description: Drop feedbacks by users
+      parameters:
+        - name: body
+          in: body
+          required: true
+          schema:
+            type: object
+            required:
+              - firstName
+              - lastName
+              - testimony
+              - position
+              - website
+            properties:
+              firstName:
+                type: string
+              lastName:
+                type: string
+              position:
+                type: string
+              website:
+                type: string
+              testimony:
+                type: string
+      responses:
+        201: 
+          description: Testimony Submitted Successful
+        400:
+          description: User error
+        500: 
+          description: Server error
