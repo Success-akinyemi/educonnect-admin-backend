@@ -22,11 +22,20 @@ export const newTeam = async (req, res) => {
 
         if (req.file) {
             // Upload to Cloudinary
-            const result = await cloudinary.uploader.upload_stream({ folder: "team_images" }, (stream) => {
-                req.file.stream.pipe(stream);
+            const uploadResult = await new Promise((resolve, reject) => {
+                const uploadStream = cloudinary.uploader.upload_stream(
+                    { folder: "team_images" },
+                    (error, result) => {
+                        if (error) return reject(error);
+                        resolve(result);
+                    }
+                );
+                uploadStream.end(req.file.buffer); // Send the file buffer
             });
-            imageUrl = result.secure_url;
-            console.log('imageUrl', result)
+
+            imageUrl = uploadResult.secure_url;
+
+            console.log('object', imageUrl,uploadResult )
         }
 
         await TeamModel.create({
@@ -47,6 +56,7 @@ export const newTeam = async (req, res) => {
         res.status(500).json({ success: false, data: "Unable to create new team member." });
     }
 };
+
 
 export async function editeam(req, res) {
     const { id, firstName, lastName, position, image, linkedinHandle, twitterHandle, instagramHandle } = req.body
