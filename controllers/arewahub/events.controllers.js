@@ -1,5 +1,5 @@
-import { generateUniqueCode } from "../../middlewares/utils.js"
-import EventModel from "../../models/arewahub/Events.js"
+import { generateUniqueCode } from "../../middlewares/utils.js";
+import EventModel from "../../models/arewahub/Events.js";
 import { v2 as cloudinary } from "cloudinary";
 
 // Cloudinary Configuration
@@ -9,22 +9,25 @@ cloudinary.config({
     api_secret: process.env.CLOUDINARY_API_SECRET,
 });
 
-//NEW EVENT
+// NEW EVENT
 export async function newEvent(req, res) {
-    const { eventName, location, speakers, schedule, eventDescription, image, eventDate, eventTime, eventGallery } = req.body
-    if(!eventName){
-          return res.status(400).json({ success: false, data: 'Event name is required' })
+    const { eventName, location, speakers, schedule, eventDescription, eventDate, eventTime } = req.body;
+
+    if (!eventName) {
+        return res.status(400).json({ success: false, data: "Event name is required" });
     }
+
     try {
-        const eventId = await generateUniqueCode(8)
-        console.log('EVENT ID', eventId)
+        const eventId = await generateUniqueCode(8);
+        console.log("EVENT ID", eventId);
+
         let imageUrl = null;
 
+        // Upload single event image
         if (req.file) {
-            // Upload to Cloudinary
             const uploadResult = await new Promise((resolve, reject) => {
                 const uploadStream = cloudinary.uploader.upload_stream(
-                    { folder: "team_images" },
+                    { folder: "event_images" },
                     (error, result) => {
                         if (error) return reject(error);
                         resolve(result);
@@ -34,32 +37,48 @@ export async function newEvent(req, res) {
             });
 
             imageUrl = uploadResult.secure_url;
-
         }
-
 
         let galleryUrls = [];
-        if(eventGallery){
-            if (Array.isArray(eventGallery) && eventGallery.length > 0) {
-              galleryUrls = await Promise.all(
-                eventGallery.map(async (galleryImage) => {
-                  const result = await cloudinary.uploader.upload(galleryImage);
-                  return result.url;
-                })
-              );
-            }
+        // Upload event gallery
+        if (req.files && req.files.eventGallery && Array.isArray(req.files.eventGallery)) {
+            galleryUrls = await Promise.all(
+                req.files.eventGallery.map((file) =>
+                    new Promise((resolve, reject) => {
+                        const uploadStream = cloudinary.uploader.upload_stream(
+                            { folder: "event_gallery" },
+                            (error, result) => {
+                                if (error) return reject(error);
+                                resolve(result.secure_url);
+                            }
+                        );
+                        uploadStream.end(file.buffer); // Send the file buffer
+                    })
+                )
+            );
         }
 
+        // Save event to the database
         const newEvent = await EventModel.create({
-            eventName, location, speakers, schedule, eventDescription, eventDate, eventTime, eventId: eventId, image: imageUrl, eventGallery: galleryUrls 
-        })
+            eventName,
+            location,
+            speakers,
+            schedule,
+            eventDescription,
+            eventDate,
+            eventTime,
+            eventId,
+            image: imageUrl,
+            eventGallery: galleryUrls,
+        });
 
-        res.status(201).json({ success: true, data: 'New Event created' })
+        res.status(201).json({ success: true, data: "New Event created" });
     } catch (error) {
-        console.log('UNABLE TO CREATE NEW EVENTS', error)
-        res.status(500).json({ success: false, data: 'Unable to create new events'})
+        console.error("UNABLE TO CREATE NEW EVENTS", error);
+        res.status(500).json({ success: false, data: "Unable to create new events" });
     }
 }
+
 
 //UPDATE EVENT
 export async function updateEvent(req, res) {
@@ -93,15 +112,22 @@ export async function updateEvent(req, res) {
 
 
         let galleryUrls = [];
-        if(eventGallery){
-            if (Array.isArray(eventGallery) && eventGallery.length > 0) {
-              galleryUrls = await Promise.all(
-                eventGallery.map(async (galleryImage) => {
-                  const result = await cloudinary.uploader.upload(galleryImage);
-                  return result.url;
-                })
-              );
-            }
+        // Upload event gallery
+        if (req.files && req.files.eventGallery && Array.isArray(req.files.eventGallery)) {
+            galleryUrls = await Promise.all(
+                req.files.eventGallery.map((file) =>
+                    new Promise((resolve, reject) => {
+                        const uploadStream = cloudinary.uploader.upload_stream(
+                            { folder: "event_gallery" },
+                            (error, result) => {
+                                if (error) return reject(error);
+                                resolve(result.secure_url);
+                            }
+                        );
+                        uploadStream.end(file.buffer); // Send the file buffer
+                    })
+                )
+            );
         }
 
         // Update the event using the ID

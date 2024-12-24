@@ -1,7 +1,9 @@
 import multer from "multer";
 
-// Store file in memory
 const storage = multer.memoryStorage();
 const upload = multer({ storage });
 
-export default upload;
+export const uploadImages = upload.fields([
+    { name: "image", maxCount: 1 }, // For single event image
+    { name: "eventGallery", maxCount: 10 }, // For multiple gallery images
+]);

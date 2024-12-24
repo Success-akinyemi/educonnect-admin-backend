@@ -1,13 +1,13 @@
 import express from 'express'
 import * as controllers from '../../controllers/acn/stories.controllers.js'
 import { AuthenticateAdmin } from '../../middlewares/auth.js'
-import upload from '../../middlewares/multer.js'
+import  { uploadImages } from '../../middlewares/multer.js'
 
 const router = express.Router()
 
 //POST ROUTES
-router.post('/newStory', upload.single("image"), AuthenticateAdmin, controllers.newStory )
-router.post('/updateStory', upload.single("image"), AuthenticateAdmin, controllers.updateStory )
+router.post('/newStory', uploadImages, AuthenticateAdmin, controllers.newStory )
+router.post('/updateStory', uploadImages, AuthenticateAdmin, controllers.updateStory )
 router.post('/toggleActive', AuthenticateAdmin, controllers.toggleActive )
 router.post('/deleteStory', AuthenticateAdmin, controllers.deleteStory )
 

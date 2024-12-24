@@ -1,13 +1,13 @@
 import express from "express";
 import { AuthenticateAdmin } from "../../middlewares/auth.js";
 import * as controllers from '../../controllers/arewahub/events.controllers.js'
-import upload from "../../middlewares/multer.js";
+import { uploadImages } from "../../middlewares/multer.js";
 
 const router = express.Router()
 
 //POST ROUTES
-router.post('/newEvent', upload.single("image"), AuthenticateAdmin, controllers.newEvent)
-router.post('/updateEvent', upload.single("image"), AuthenticateAdmin, controllers.updateEvent)
+router.post('/newEvent', uploadImages, AuthenticateAdmin, controllers.newEvent)
+router.post('/updateEvent', uploadImages, AuthenticateAdmin, controllers.updateEvent)
 router.post('/deleteEvent', AuthenticateAdmin, controllers.deleteEvent)
 
 //GET ROUTES
