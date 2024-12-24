@@ -26,7 +26,7 @@ const DonationSchema = new mongoose.Schema({
     donationId: {
         type: String
     },
-    type: {
+    donationType: {
         String
     }
 },

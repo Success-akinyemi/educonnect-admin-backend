@@ -382,7 +382,7 @@ paths:
               - email
               - phoneNumber
               - country
-              - amount
+              - donationType
             properties:
               firstName:
                 type: string
@@ -394,8 +394,8 @@ paths:
                 type: string
               country:
                 type: string
-              amount: 
-                type: number
+              donationType: 
+                type: string
       responses:
         201: 
           description: Donation Submitted Successful
