@@ -79,98 +79,33 @@ export async function newEvent(req, res) {
     }
 }
 
-
-//UPDATE EVENT
-export async function updateEvent(req, res) {
-    const { id, eventName, location, speakers, schedule, eventDescription, image, eventDate, eventTime, eventGallery } = req.body;
-    console.log(req.body)
+// GET PAST EVENTS
+export async function getPastEvents(req, res) {
     try {
-        // Find the event by eventId
-        const findEvent = await EventModel.findOne({ eventId: id });
-        if (!findEvent) {
-            return res.status(404).json({ success: false, data: 'Event does not exist' });
-        }
+        const today = new Date().toISOString().split('T')[0]; // Get current date as 'YYYY-MM-DD'
+        const pastEvents = await EventModel.find({ 
+            eventDate: { $lt: today, $exists: true, $ne: null } // Ensure eventDate exists and is not null
+        }).select('-_id');
 
-        let imageUrl = null;
-
-        if (req.files?.image?.[0]) {
-            const file = req.files.image[0];
-
-            // Upload to Cloudinary
-            const uploadResult = await new Promise((resolve, reject) => {
-                const uploadStream = cloudinary.uploader.upload_stream(
-                    { folder: "team_images" },
-                    (error, result) => {
-                        if (error) return reject(error);
-                        resolve(result);
-                    }
-                );
-                uploadStream.end(file.buffer); // Use the file buffer from Multer
-            });
-
-            imageUrl = uploadResult.secure_url;
-            console.log("Uploaded image URL:", imageUrl);
-        }
-
-        let galleryUrls = [];
-        // Upload event gallery
-        if (req.files && req.files.eventGallery && Array.isArray(req.files.eventGallery)) {
-            galleryUrls = await Promise.all(
-                req.files.eventGallery.map((file) =>
-                    new Promise((resolve, reject) => {
-                        const uploadStream = cloudinary.uploader.upload_stream(
-                            { folder: "event_gallery" },
-                            (error, result) => {
-                                if (error) return reject(error);
-                                resolve(result.secure_url);
-                            }
-                        );
-                        uploadStream.end(file.buffer); // Send the file buffer
-                    })
-                )
-            );
-        }
-
-        // Update the event using the ID
-        const updatedEventData = await EventModel.findByIdAndUpdate(
-            findEvent._id, // Correctly reference the ID
-            {
-                $set: {
-                    eventName,
-                    location,
-                    speakers,
-                    schedule,
-                    eventDescription,
-                    image: imageUrl,
-                    eventDate, 
-                    eventTime,
-                    eventGallery: galleryUrls
-                },
-            },
-            { new: true } // Return the updated document
-        );
-
-        if (!updatedEventData) {
-            return res.status(400).json({ success: false, data: 'Unable to update event data' });
-        }
-        console.log('updatedEventData', updatedEventData)
-
-        res.status(201).json({ success: true, data: 'Event data updated', event: updatedEventData });
+        res.status(200).json({ success: true, data: pastEvents });
     } catch (error) {
-        console.log('UNABLE TO UPDATE EVENT', error);
-        res.status(500).json({ success: false, data: 'Unable to update event' });
+        console.error('UNABLE TO GET ALL PAST EVENTS', error);
+        res.status(500).json({ success: false, message: 'Unable to fetch past events', error: error.message });
     }
 }
 
-//GET ALL EVENTS
-export async function getEvents(req, res) {
+// GET FUTURE EVENTS
+export async function getFutureEvents(req, res) {
     try {
-        const events = await EventModel.find().select('-_id')
+        const today = new Date().toISOString().split('T')[0]; // Get current date as 'YYYY-MM-DD'
+        const futureEvents = await EventModel.find({ 
+            eventDate: { $gte: today, $exists: true, $ne: null } // Ensure eventDate exists and is not null
+        }).select('-_id');
 
-        res.status(200).json({ success: true, data: events })
+        res.status(200).json({ success: true, data: futureEvents });
     } catch (error) {
-        console.log('UNABLE TO GETA ALL EVENTS', error)
-        res.status(500).json({ success: false, data: 'Unable to get events' })
+        console.error('UNABLE TO GET ALL FUTURE EVENTS', error);
+        res.status(500).json({ success: false, message: 'Unable to fetch future events', error: error.message });
     }
 }
 
