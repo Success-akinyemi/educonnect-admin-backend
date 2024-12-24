@@ -1,12 +1,13 @@
 import { generateUniqueCode } from "../../middlewares/utils.js"
 import ProductModel from "../../models/arewahub/Product.js"
-import cloudinary from "cloudinary";
+import { v2 as cloudinary } from "cloudinary";
 
-cloudinary.v2.config({
+// Cloudinary Configuration
+cloudinary.config({
     cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
     api_key: process.env.CLOUDINARY_API_KEY,
     api_secret: process.env.CLOUDINARY_API_SECRET,
-  });
+});
 
 //ADD PRODUCT
 export async function addProdcut(req, res) {
@@ -30,11 +31,23 @@ export async function addProdcut(req, res) {
         const productCode = await generateUniqueCode(8)
         console.log('PRODUCT ID', productCode)
         
-        let imageUrl
-        if(image){
-            const result = await cloudinary.uploader.upload(image)
+        let imageUrl = null;
 
-            imageUrl = result.url
+        if (req.file) {
+            // Upload to Cloudinary
+            const uploadResult = await new Promise((resolve, reject) => {
+                const uploadStream = cloudinary.uploader.upload_stream(
+                    { folder: "product_images" },
+                    (error, result) => {
+                        if (error) return reject(error);
+                        resolve(result);
+                    }
+                );
+                uploadStream.end(req.file.buffer); // Send the file buffer
+            });
+
+            imageUrl = uploadResult.secure_url;
+
         }
 
         const newProduct = await ProductModel.create({
@@ -57,11 +70,23 @@ export async function editProduct(req, res) {
             return res.status(404).json({ success: false, data: 'Product not found' })
         }
 
-        let imageUrl
-        if(image){
-            const result = await cloudinary.uploader.upload(image)
+        let imageUrl = null;
 
-            imageUrl = result.url
+        if (req.file) {
+            // Upload to Cloudinary
+            const uploadResult = await new Promise((resolve, reject) => {
+                const uploadStream = cloudinary.uploader.upload_stream(
+                    { folder: "product_images" },
+                    (error, result) => {
+                        if (error) return reject(error);
+                        resolve(result);
+                    }
+                );
+                uploadStream.end(req.file.buffer); // Send the file buffer
+            });
+
+            imageUrl = uploadResult.secure_url;
+
         }
 
         const updateProduct = await ProductModel.findByIdAndUpdate(
