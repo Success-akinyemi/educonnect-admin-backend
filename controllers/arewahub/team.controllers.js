@@ -58,6 +58,7 @@ export const newTeam = async (req, res) => {
     }
 };
 
+
 export async function editeam(req, res) {
     const { id, firstName, lastName, position, linkedinHandle, twitterHandle, instagramHandle } = req.body
     try {

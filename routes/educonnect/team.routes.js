@@ -12,7 +12,6 @@ router.post('/toggleActiveStatus', AuthenticateAdmin, controllers.toggleActiveSt
 router.post('/deleteTeamMember', AuthenticateAdmin, controllers.deleteTeamMember)
 
 
-
 //GET ROUTES
 router.get('/getAllTeam', controllers.getAllTeam )
 router.get('/getTeam/:id', controllers.getTeam )
