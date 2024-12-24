@@ -87,8 +87,9 @@ export async function approveOrderDelivered(req, res) {
             return res.status(404).json({ success: false, data: 'Order not found' })
         }
 
-        order.status === 'Approved' ? order.status = 'Pending' : 'Approved'
+        order.status === 'Approved' ? order.status = 'Pending' : order.status = 'Approved'
         order.save()
+        console.log('object stats', order.status)
 
         res.status(200).json({ success: true, data: 'Order Status updated' })
     } catch (error) {

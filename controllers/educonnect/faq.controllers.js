@@ -104,7 +104,7 @@ export async function toggleFaqActive(req, res) {
 
 export async function getFaqs(req, res) {
     try {
-        const faqData = await FaqModel.findOne()
+        const faqData = await FaqModel.find()
 
         res.status(200).json({ success: true, data: faqData })
     } catch (error) {

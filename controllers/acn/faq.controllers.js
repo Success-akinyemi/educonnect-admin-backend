@@ -26,8 +26,8 @@ export async function newFaq(req, res) {
 
 export async function updateFaq(req, res) {
     const { id, question, answer } = req.body;
-
-    if (!id || !question || !answer) {
+console.log(req.body)
+    if (!id) {
         return res.status(400).json({ success: false, data: 'ID, question, and answer are required' });
     }
 

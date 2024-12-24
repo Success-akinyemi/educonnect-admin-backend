@@ -12,7 +12,7 @@ cloudinary.config({
 // NEW EVENT
 export async function newEvent(req, res) {
     const { eventName, location, speakers, schedule, eventDescription, eventDate, eventTime } = req.body;
-
+    console.log('object', req.files, req.body)
     if (!eventName) {
         return res.status(400).json({ success: false, data: "Event name is required" });
     }
@@ -93,7 +93,9 @@ export async function updateEvent(req, res) {
 
         let imageUrl = null;
 
-        if (req.file) {
+        if (req.files?.image?.[0]) {
+            const file = req.files.image[0];
+
             // Upload to Cloudinary
             const uploadResult = await new Promise((resolve, reject) => {
                 const uploadStream = cloudinary.uploader.upload_stream(
@@ -103,13 +105,12 @@ export async function updateEvent(req, res) {
                         resolve(result);
                     }
                 );
-                uploadStream.end(req.file.buffer); // Send the file buffer
+                uploadStream.end(file.buffer); // Use the file buffer from Multer
             });
 
             imageUrl = uploadResult.secure_url;
-
+            console.log("Uploaded image URL:", imageUrl);
         }
-
 
         let galleryUrls = [];
         // Upload event gallery

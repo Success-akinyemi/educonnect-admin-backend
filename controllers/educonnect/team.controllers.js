@@ -11,7 +11,6 @@ cloudinary.config({
 
 export const newTeam = async (req, res) => {
     const { firstName, lastName, position, email, linkedinHandle, twitterHandle, instagramHandle } = req.body;
-
     if (!firstName || !lastName || !position) {
         return res.status(400).json({ success: false, data: "First name, last name, and position fields are required." });
     }
@@ -20,7 +19,9 @@ export const newTeam = async (req, res) => {
         const teamID = await generateUniqueCode(8);
         let imageUrl = null;
 
-        if (req.file) {
+        if (req.files?.image?.[0]) {
+            const file = req.files.image[0];
+
             // Upload to Cloudinary
             const uploadResult = await new Promise((resolve, reject) => {
                 const uploadStream = cloudinary.uploader.upload_stream(
@@ -30,11 +31,11 @@ export const newTeam = async (req, res) => {
                         resolve(result);
                     }
                 );
-                uploadStream.end(req.file.buffer); // Send the file buffer
+                uploadStream.end(file.buffer); // Use the file buffer from Multer
             });
 
             imageUrl = uploadResult.secure_url;
-
+            console.log("Uploaded image URL:", imageUrl);
         }
 
         const newMember = await TeamModel.create({
@@ -68,7 +69,9 @@ export async function editeam(req, res) {
 
         let imageUrl = null;
 
-        if (req.file) {
+        if (req.files?.image?.[0]) {
+            const file = req.files.image[0];
+
             // Upload to Cloudinary
             const uploadResult = await new Promise((resolve, reject) => {
                 const uploadStream = cloudinary.uploader.upload_stream(
@@ -78,13 +81,12 @@ export async function editeam(req, res) {
                         resolve(result);
                     }
                 );
-                uploadStream.end(req.file.buffer); // Send the file buffer
+                uploadStream.end(file.buffer); // Use the file buffer from Multer
             });
 
             imageUrl = uploadResult.secure_url;
-
+            console.log("Uploaded image URL:", imageUrl);
         }
-
         const updateTeamMember = await TeamModel.findByIdAndUpdate(
             getTeamMember?._id,
             {

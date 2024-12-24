@@ -38,22 +38,25 @@ export async function newNews(req, res) {
 
         let imageUrl = null;
 
-        if (req.file) {
+
+        if (req.files?.image?.[0]) {
+            const file = req.files.image[0];
+
             // Upload to Cloudinary
             const uploadResult = await new Promise((resolve, reject) => {
                 const uploadStream = cloudinary.uploader.upload_stream(
-                    { folder: "newsAndUpdates_images" },
+                    { folder: "team_images" },
                     (error, result) => {
                         if (error) return reject(error);
                         resolve(result);
                     }
                 );
-                uploadStream.end(req.file.buffer); // Send the file buffer
+                uploadStream.end(file.buffer); // Use the file buffer from Multer
             });
 
             imageUrl = uploadResult.secure_url;
-
         }
+
 
         const newPostData = await NewsAndUpdatesModel.create({
             title, post, postId: newPostId, category: categoryArray, image: imageUrl, caption, writers, writerEmail: email, writerId: staffID, writerImage: profileImg,
@@ -75,22 +78,26 @@ export async function updateNews(req, res) {
         }
         let imageUrl = null;
 
-        if (req.file) {
+console.log('opidc', req.files, req.file)
+        if (req.files?.image?.[0]) {
+            const file = req.files.image[0];
+
             // Upload to Cloudinary
             const uploadResult = await new Promise((resolve, reject) => {
                 const uploadStream = cloudinary.uploader.upload_stream(
-                    { folder: "newsAndUpdates_images" },
+                    { folder: "team_images" },
                     (error, result) => {
                         if (error) return reject(error);
                         resolve(result);
                     }
                 );
-                uploadStream.end(req.file.buffer); // Send the file buffer
+                uploadStream.end(file.buffer); // Use the file buffer from Multer
             });
 
             imageUrl = uploadResult.secure_url;
-
+            console.log("Uploaded image URL:", imageUrl);
         }
+        console.log('news and update update post',imageUrl)
 
         const updatePost = await NewsAndUpdatesModel.findByIdAndUpdate(
             id,
