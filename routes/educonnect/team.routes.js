@@ -14,6 +14,7 @@ router.post('/deleteTeamMember', AuthenticateAdmin, controllers.deleteTeamMember
 
 //GET ROUTES
 router.get('/getAllTeam', controllers.getAllTeam )
+router.get('/getAdminAllTeam', controllers.getAdminAllTeam )
 router.get('/getTeam/:id', controllers.getTeam )
 
 

@@ -113,9 +113,20 @@ export async function editeam(req, res) {
     }
 }
 
-export async function getAllTeam(req, res) {
+export async function getAdminAllTeam(req, res) {
     try {
         const getAllTeamMemebers = await TeamModel.find().select('-_id')
+
+        res.status(200).json({ success: true, data: getAllTeamMemebers })
+    } catch (error) {
+        console.log('UNABLE TO GET ALL TEAM MEMBER', error)
+        res.status(500).json({ success: false, data: 'Unable to get all team member' }) 
+    }
+}
+
+export async function getAllTeam(req, res) {
+    try {
+        const getAllTeamMemebers = await TeamModel.find({ active: true }).select('-_id')
 
         res.status(200).json({ success: true, data: getAllTeamMemebers })
     } catch (error) {

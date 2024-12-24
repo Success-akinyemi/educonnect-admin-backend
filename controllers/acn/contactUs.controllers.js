@@ -33,7 +33,7 @@ export async function newContactUsMsg(req, res) {
         console.log('MESSAGE ID>>', `EC${messageId}`)
 
         const newMessage = ContactUsModel.create({
-            firstName, lastName, email, phoneNumber, message, messageId
+            firstName, lastName, email, reason, message, messageId
         })
 
         res.status(201).json({ success: true, data: 'Message Submitted Successful' })
