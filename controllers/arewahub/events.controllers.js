@@ -179,7 +179,7 @@ export async function getPastEvents(req, res) {
     try {
         const today = new Date().toISOString().split('T')[0]; // Get current date as 'YYYY-MM-DD'
         const pastEvents = await EventModel.find({ 
-            eventDate: { $lt: today } // Compare as strings
+            eventDate: { $lt: today, $exists: true, $ne: null } // Ensure eventDate exists and is not null
         }).select('-_id');
 
         res.status(200).json({ success: true, data: pastEvents });
@@ -194,7 +194,7 @@ export async function getFutureEvents(req, res) {
     try {
         const today = new Date().toISOString().split('T')[0]; // Get current date as 'YYYY-MM-DD'
         const futureEvents = await EventModel.find({ 
-            eventDate: { $gte: today } // Compare as strings
+            eventDate: { $gte: today, $exists: true, $ne: null } // Ensure eventDate exists and is not null
         }).select('-_id');
 
         res.status(200).json({ success: true, data: futureEvents });
