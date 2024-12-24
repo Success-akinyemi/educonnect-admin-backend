@@ -35,7 +35,7 @@ const TestimomialsSchema = new mongoose.Schema({
     website: {
         type: String,
         required: [ true, 'Website base is required'],
-        //enum: [ 'educonnect', 'acn', 'arewahub' ]
+        //enum: [ 'eduafrica', 'acn', 'arewahub' ]
     }
 },
 { timestamps: true }

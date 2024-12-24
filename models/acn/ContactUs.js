@@ -21,9 +21,9 @@ const ContactUsSchema = new mongoose.Schema({
         type: String,
         required: [ true, 'Message is required.' ]
     },
-    phoneNumber: {
+    reason: {
         type: String,
-        required: [ true, 'Phone number is required.' ]
+        required: [ true, 'reason is required.' ]
     },
     reply: {
         type: String

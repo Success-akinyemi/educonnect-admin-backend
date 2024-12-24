@@ -25,6 +25,9 @@ const EventSchema = new mongoose.Schema({
     schedule: {
         type: String
     },
+    eventDescription: {
+        type: String
+    },
     image: {
         type: String
     },

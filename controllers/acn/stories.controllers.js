@@ -1,23 +1,22 @@
 import mongoose from "mongoose";
 import { generateUniqueCode } from "../../middlewares/utils.js"
-import NewsAndUpdatesModel from "../../models/acn/NewsAndUpdates.js"
-import { v2 as cloudinary } from "cloudinary";
+import StoriesModel from "../../models/acn/Stroies.js"
+import cloudinary from "cloudinary";
 
-// Cloudinary Configuration
-cloudinary.config({
+cloudinary.v2.config({
     cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
     api_key: process.env.CLOUDINARY_API_KEY,
     api_secret: process.env.CLOUDINARY_API_SECRET,
-});
+  });
 
 
 function convertCategoryToArray(categoryString) {
     return categoryString.split(',').map(category => category.trim());
   }
 
-export async function newNews(req, res) {
-    const { title, post, category, image, writers, caption } = req.body
-    const { email, staffID, profileImg } = req.user
+export async function newStory(req, res) {
+    const { title, post, category, image, writers } = req.body
+    const { email, staffID } = req.user
     if(!title){
         return res.status(404).json({ success: false, data: 'Provide a title' })
     }
@@ -35,14 +34,13 @@ export async function newNews(req, res) {
         console.log('POST ID>>', `${newPostId}`)
 
         const categoryArray = convertCategoryToArray(category);
-
         let imageUrl = null;
 
         if (req.file) {
             // Upload to Cloudinary
             const uploadResult = await new Promise((resolve, reject) => {
                 const uploadStream = cloudinary.uploader.upload_stream(
-                    { folder: "newsAndUpdates_images" },
+                    { folder: "stories_images" },
                     (error, result) => {
                         if (error) return reject(error);
                         resolve(result);
@@ -55,31 +53,32 @@ export async function newNews(req, res) {
 
         }
 
-        const newPostData = await NewsAndUpdatesModel.create({
-            title, post, postId: newPostId, category: categoryArray, image: imageUrl, caption, writers, writerEmail: email, writerId: staffID, writerImage: profileImg,
+        const newPostData = await StoriesModel.create({
+            title, post, postId: newPostId, category: categoryArray, image: imageUrl, writers, writerEmail: email, writerId: staffID
         })
 
-        res.status(201).json({ success: true, data: 'New Post created successful' })
+        res.status(201).json({ success: true, data: 'New Story created successful' })
     } catch (error) {
         console.log('UNABLE TO CREATE A NEW NEWS POST', error)
         res.status(500).json({ success: false, data: 'Unable to create new news post' })
     }
 }
 
-export async function updateNews(req, res) {
-    const { id, title, post, category, image, writers, caption } = req.body
+export async function updateStory(req, res) {
+    const { id, title, post, category, image, writers } = req.body
     try {
-        const findPost = await NewsAndUpdatesModel.findById({ _id: id })
+        const findPost = await StoriesModel.findById({ _id: id })
         if(!findPost){
-            return res.status(404).json({ success: false, data: 'Post with this id deos not exist' })
+            return res.status(404).json({ success: false, data: 'Story with this id deos not exist' })
         }
+
         let imageUrl = null;
 
         if (req.file) {
             // Upload to Cloudinary
             const uploadResult = await new Promise((resolve, reject) => {
                 const uploadStream = cloudinary.uploader.upload_stream(
-                    { folder: "newsAndUpdates_images" },
+                    { folder: "stories_images" },
                     (error, result) => {
                         if (error) return reject(error);
                         resolve(result);
@@ -92,7 +91,7 @@ export async function updateNews(req, res) {
 
         }
 
-        const updatePost = await NewsAndUpdatesModel.findByIdAndUpdate(
+        const updatePost = await StoriesModel.findByIdAndUpdate(
             id,
             {
                 $set: {
@@ -100,8 +99,7 @@ export async function updateNews(req, res) {
                     post,
                     category,
                     image: imageUrl,
-                    writers,
-                    caption
+                    writers
                 }
             },
             { new: true }
@@ -114,17 +112,17 @@ export async function updateNews(req, res) {
     }
 }
 
-export async function deleteNews(req, res) {
+export async function deleteStory(req, res) {
     const { id } = req.body
     try {
-        const findPost = await NewsAndUpdatesModel.findById({ _id: id })
+        const findPost = await StoriesModel.findById({ _id: id })
         if(!findPost){
-            return res.status(404).json({ success: false, data: 'Post with this id deos not exist' })
+            return res.status(404).json({ success: false, data: 'Story with this id deos not exist' })
         }
 
-        const deletePost = await NewsAndUpdatesModel.findByIdAndDelete({ _id: id })
+        const deletePost = await StoriesModel.findByIdAndDelete({ _id: id })
 
-        res.status(200).json({ success: true, data: 'Post Deleted successful' })
+        res.status(200).json({ success: true, data: 'Story Deleted successful' })
     } catch (error) {
         console.log('UNABLE TO DELETE NEWS POSTS', error)
         res.status(500).json({ success: false, data: 'Unable to delete news post' })
@@ -134,23 +132,23 @@ export async function deleteNews(req, res) {
 export async function toggleActive(req, res) {
     const { id } = req.body
     try {
-        const findPost = await NewsAndUpdatesModel.findById({ _id: id })
+        const findPost = await StoriesModel.findById({ _id: id })
         if(!findPost){
-            return res.status(404).json({ success: false, data: 'Post with this id deos not exist' })
+            return res.status(404).json({ success: false, data: 'Story with this id deos not exist' })
         }
 
         findPost.active = !findPost.active
         await findPost.save()
-        res.status(200).json({ success: true, data: `${findPost?.active ? 'Post Active' : 'Post Inactive'}` })
+        res.status(200).json({ success: true, data: `${findPost?.active ? 'Story Active' : 'Story Inactive'}` })
     } catch (error) {
         console.log('UNABLE TO DELETE NEWS POSTS', error)
         res.status(500).json({ success: false, data: 'Unable to delete news post' })
     }
 }
 
-export async function getAllNewsAndUpdates(req, res) {
+export async function getAllStories(req, res) {
     try {
-        const getPosts = await NewsAndUpdatesModel.find()
+        const getPosts = await StoriesModel.find()
 
         res.status(200).json({ success: false, data: getPosts })
     } catch (error) {
@@ -159,7 +157,7 @@ export async function getAllNewsAndUpdates(req, res) {
     }
 }
 
-export async function getANewsAndUpdates(req, res) {
+export async function getAStory(req, res) {
     const { id } = req.params;
 
     // Validate the ID
@@ -168,10 +166,10 @@ export async function getANewsAndUpdates(req, res) {
     }
 
     try {
-        const findPost = await NewsAndUpdatesModel.findById(id);
+        const findPost = await StoriesModel.findById(id);
 
         if (!findPost) {
-            return res.status(404).json({ success: false, data: 'Post with this ID does not exist' });
+            return res.status(404).json({ success: false, data: 'Story with this ID does not exist' });
         }
 
         res.status(200).json({ success: true, data: findPost });
@@ -181,9 +179,9 @@ export async function getANewsAndUpdates(req, res) {
     }
 }
 //USERS
-export async function getUserAllNewsAndUpdates(req, res) {
+export async function getUserAllStories(req, res) {
     try {
-        const getPosts = await NewsAndUpdatesModel.find({ active: true })
+        const getPosts = await StoriesModel.find({ active: true })
 
         res.status(200).json({ success: false, data: getPosts })
     } catch (error) {
@@ -192,12 +190,12 @@ export async function getUserAllNewsAndUpdates(req, res) {
     }
 }
 
-export async function getUserANewsAndUpdates(req, res) {
+export async function getUserAStory(req, res) {
     const { id } = req.params
     try {
-        const findPost = await NewsAndUpdatesModel.findById({ _id: id })
+        const findPost = await StoriesModel.findById({ _id: id })
         if(!findPost){
-            return res.status(404).json({ success: false, data: 'Post with this id deos not exist' })
+            return res.status(404).json({ success: false, data: 'Story with this id deos not exist' })
         }
 
         if(findPost?.active == false || findPost?.blocked == true ){

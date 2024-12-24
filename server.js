@@ -26,7 +26,9 @@ import acnContactUsRoutes from './routes/acn/contactUs.routes.js';
 import acnFaqRoutes from './routes/acn/faq.routes.js';
 import acnNewsAndUpdatesRoutes from './routes/acn/newsAndUpdates.routes.js';
 import acnTeamMembersRoutes from './routes/acn/team.routes.js';
+import acnAmbassdorRoutes from './routes/acn/ambassadors.routes.js';
 import acnDonationsRoutes from './routes/acn/donation.routes.js';
+import acnStroiesRoutes from './routes/acn/stories.routes.js';
 
 
 //AREWA HUB
@@ -129,7 +131,9 @@ app.use('/api/educonnect/team', educonnectTeamMembersRoutes)
 app.use('/api/acn/contactUs', acnContactUsRoutes);
 app.use('/api/acn/faq', acnFaqRoutes);
 app.use('/api/acn/newsAndUpdates', acnNewsAndUpdatesRoutes);
+app.use('/api/acn/story', acnStroiesRoutes)
 app.use('/api/acn/team', acnTeamMembersRoutes)
+app.use('/api/acn/ambassdor', acnAmbassdorRoutes)
 app.use('/api/acn/donation', acnDonationsRoutes)
 
 

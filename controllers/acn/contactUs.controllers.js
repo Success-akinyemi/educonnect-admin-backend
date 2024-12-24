@@ -12,7 +12,7 @@ const mailGenerator = new Mailgen({
 })
 
 export async function newContactUsMsg(req, res) {
-    const { firstName, lastName, email, phoneNumber, message } = req.body
+    const { firstName, lastName, email, reason, message } = req.body
     if(!firstName){
         return res.status(500).json({ success: false, data: 'First name is required' })
     }
@@ -22,8 +22,8 @@ export async function newContactUsMsg(req, res) {
     if(!email){
         return res.status(500).json({ success: false, data: 'Email address is required' })
     }
-    if(!phoneNumber){
-        return res.status(500).json({ success: false, data: 'Email address is required' })
+    if(!reason){
+        return res.status(500).json({ success: false, data: 'reason is required' })
     }
     if(!message){
         return res.status(500).json({ success: false, data: 'Message is required' })

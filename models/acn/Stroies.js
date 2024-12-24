@@ -1,23 +1,20 @@
 import mongoose from "mongoose";
 
-const NewsAndUpdatesSchema = new mongoose.Schema({
+const StoriesSchema = new mongoose.Schema({
     title: {
         type: String,
         required: [ true, 'Title is required' ]
     },
-    post: {
+    story: {
         type: String,
-        required: [ true, 'Post is required' ]
+        required: [ true, 'Story is required' ]
     },
-    postId: {
+    storyId: {
         type: String,
-        required: [ true, 'Post Id is required']
+        required: [ true, 'Story Id is required']
     },
     category: {
         type: Array
-    },
-    caption: {
-        type: String
     },
     image: {
         type: String
@@ -33,9 +30,6 @@ const NewsAndUpdatesSchema = new mongoose.Schema({
     writerId: {
         type: String
     },
-    writerImage: {
-        type: String
-    },
     active: {
         type: Boolean,
         default: true
@@ -48,5 +42,5 @@ const NewsAndUpdatesSchema = new mongoose.Schema({
 { timestamps: true }
 )
 
-const NewsAndUpdatesModel = mongoose.model('newsAndUpdates', NewsAndUpdatesSchema)
-export default NewsAndUpdatesModel
+const StoriesModel = mongoose.model('acnstories', StoriesSchema)
+export default StoriesModel

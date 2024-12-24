@@ -15,6 +15,8 @@ router.get('/getAllTestimonies', controllers.newTestimonials )
 router.get('/getATestimonies/:id', controllers.getATestimonies )
 router.get('/getSectionTestimonies/:value', controllers.getSectionTestimonies )
 router.get('/getSectionActiveTestimonies/:value', controllers.getSectionActiveTestimonies )
+router.get('/getActiveTestimonies', controllers.getActiveTestimonies )
+
 
 
 

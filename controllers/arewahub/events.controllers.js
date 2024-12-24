@@ -10,7 +10,7 @@ cloudinary.v2.config({
 
 //NEW EVENT
 export async function newEvent(req, res) {
-    const { eventName, location, speakers, schedule, image, eventDate, eventTime, eventGallery } = req.body
+    const { eventName, location, speakers, schedule, eventDescription, image, eventDate, eventTime, eventGallery } = req.body
     if(!eventName){
           return res.status(400).json({ success: false, data: 'Event name is required' })
     }
@@ -38,7 +38,7 @@ export async function newEvent(req, res) {
         }
 
         const newEvent = await EventModel.create({
-            eventName, location, speakers, schedule, eventDate, eventTime, eventId: eventId, image: imageUrl, eventGallery: galleryUrls 
+            eventName, location, speakers, schedule, eventDescription, eventDate, eventTime, eventId: eventId, image: imageUrl, eventGallery: galleryUrls 
         })
 
         res.status(201).json({ success: true, data: 'New Event created' })
@@ -50,7 +50,7 @@ export async function newEvent(req, res) {
 
 //UPDATE EVENT
 export async function updateEvent(req, res) {
-    const { id, eventName, location, speakers, schedule, image, eventDate, eventTime, eventGallery } = req.body;
+    const { id, eventName, location, speakers, schedule, eventDescription, image, eventDate, eventTime, eventGallery } = req.body;
     console.log(req.body)
     try {
         // Find the event by eventId
@@ -86,6 +86,7 @@ export async function updateEvent(req, res) {
                     location,
                     speakers,
                     schedule,
+                    eventDescription,
                     image: imageUrl,
                     eventDate, 
                     eventTime,

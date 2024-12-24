@@ -124,7 +124,12 @@ export async function getAllProduct(req, res) {
 
 //FETCH PRODUCT FPR USER
 export async function fetchProducts(req, res) {
+    const { search } = req.query
     try {
+
+        if(search){
+            
+        }
         const allProduct = await ProductModel.find({ active: true }).select('-_id')
 
         res.status(200).json({ success: true, data: allProduct })

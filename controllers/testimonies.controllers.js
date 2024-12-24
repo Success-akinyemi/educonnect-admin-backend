@@ -153,3 +153,15 @@ export async function getSectionActiveTestimonies(req, res) {
         res.status(500).json({ success: false, data: 'Unable to get testimony' })
     }
 }
+
+export async function getActiveTestimonies(req, res) {
+
+    try {
+        const getData = await TestimomialsModel.find({ active: true })
+
+        res.status(200).json({ success: true, data: getData })
+    } catch (error) {
+        console.log(`UNABLE TO GET TESTIMONIES FOR`, error)
+        res.status(500).json({ success: false, data: 'Unable to get testimony' })
+    }
+}
