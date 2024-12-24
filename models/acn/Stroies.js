@@ -34,6 +34,9 @@ const StoriesSchema = new mongoose.Schema({
         type: Boolean,
         default: true
     },
+    caption: {
+        type: String
+    },
     blocked: {
         type: Boolean,
         default: false

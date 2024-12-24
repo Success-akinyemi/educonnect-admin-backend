@@ -1,27 +1,27 @@
 import mongoose from "mongoose";
 import { generateUniqueCode } from "../../middlewares/utils.js"
 import StoriesModel from "../../models/acn/Stroies.js"
-import cloudinary from "cloudinary";
+import { v2 as cloudinary } from "cloudinary";
 
-cloudinary.v2.config({
+// Cloudinary Configuration
+cloudinary.config({
     cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
     api_key: process.env.CLOUDINARY_API_KEY,
     api_secret: process.env.CLOUDINARY_API_SECRET,
-  });
-
+});
 
 function convertCategoryToArray(categoryString) {
     return categoryString.split(',').map(category => category.trim());
   }
 
 export async function newStory(req, res) {
-    const { title, post, category, image, writers } = req.body
+    const { title, story, category, image, writers, caption } = req.body
     const { email, staffID } = req.user
     if(!title){
         return res.status(404).json({ success: false, data: 'Provide a title' })
     }
-    if(!post){
-        return res.status(404).json({ success: false, data: 'Provide a post' })
+    if(!story){
+        return res.status(404).json({ success: false, data: 'Provide a story' })
     }
     if(!category || category?.lenght < 1 ){
         return res.status(404).json({ success: false, data: 'Provide a category' })
@@ -30,31 +30,33 @@ export async function newStory(req, res) {
         return res.status(404).json({ success: false, data: 'Provide writer name' })
     }
     try {
-        const newPostId = await generateUniqueCode(8)
-        console.log('POST ID>>', `${newPostId}`)
+        const newStoryId = await generateUniqueCode(8)
+        console.log('STORY ID>>', `${newStoryId}`)
 
         const categoryArray = convertCategoryToArray(category);
         let imageUrl = null;
 
-        if (req.file) {
+        if (req.files?.image?.[0]) {
+            const file = req.files.image[0];
+
             // Upload to Cloudinary
             const uploadResult = await new Promise((resolve, reject) => {
                 const uploadStream = cloudinary.uploader.upload_stream(
-                    { folder: "stories_images" },
+                    { folder: "story_images" },
                     (error, result) => {
                         if (error) return reject(error);
                         resolve(result);
                     }
                 );
-                uploadStream.end(req.file.buffer); // Send the file buffer
+                uploadStream.end(file.buffer); // Use the file buffer from Multer
             });
 
             imageUrl = uploadResult.secure_url;
-
+            console.log("Uploaded image URL:", imageUrl);
         }
 
         const newPostData = await StoriesModel.create({
-            title, post, postId: newPostId, category: categoryArray, image: imageUrl, writers, writerEmail: email, writerId: staffID
+            title, story, storyId: newStoryId, caption, category: categoryArray, image: imageUrl, writers, writerEmail: email, writerId: staffID
         })
 
         res.status(201).json({ success: true, data: 'New Story created successful' })
@@ -65,7 +67,7 @@ export async function newStory(req, res) {
 }
 
 export async function updateStory(req, res) {
-    const { id, title, post, category, image, writers } = req.body
+    const { id, title, story, category, caption, image, writers } = req.body
     try {
         const findPost = await StoriesModel.findById({ _id: id })
         if(!findPost){
@@ -74,32 +76,34 @@ export async function updateStory(req, res) {
 
         let imageUrl = null;
 
-        if (req.file) {
+        if (req.files?.image?.[0]) {
+            const file = req.files.image[0];
+
             // Upload to Cloudinary
             const uploadResult = await new Promise((resolve, reject) => {
                 const uploadStream = cloudinary.uploader.upload_stream(
-                    { folder: "stories_images" },
+                    { folder: "story_images" },
                     (error, result) => {
                         if (error) return reject(error);
                         resolve(result);
                     }
                 );
-                uploadStream.end(req.file.buffer); // Send the file buffer
+                uploadStream.end(file.buffer); // Use the file buffer from Multer
             });
 
             imageUrl = uploadResult.secure_url;
-
+            console.log("Uploaded image URL:", imageUrl);
         }
-
         const updatePost = await StoriesModel.findByIdAndUpdate(
             id,
             {
                 $set: {
                     title,
-                    post,
+                    story,
                     category,
                     image: imageUrl,
-                    writers
+                    writers,
+                    caption
                 }
             },
             { new: true }
