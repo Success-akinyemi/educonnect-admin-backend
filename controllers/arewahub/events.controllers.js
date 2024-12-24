@@ -1,12 +1,13 @@
 import { generateUniqueCode } from "../../middlewares/utils.js"
 import EventModel from "../../models/arewahub/Events.js"
-import cloudinary from "cloudinary";
+import { v2 as cloudinary } from "cloudinary";
 
-cloudinary.v2.config({
+// Cloudinary Configuration
+cloudinary.config({
     cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
     api_key: process.env.CLOUDINARY_API_KEY,
     api_secret: process.env.CLOUDINARY_API_SECRET,
-  });
+});
 
 //NEW EVENT
 export async function newEvent(req, res) {
@@ -17,13 +18,25 @@ export async function newEvent(req, res) {
     try {
         const eventId = await generateUniqueCode(8)
         console.log('EVENT ID', eventId)
+        let imageUrl = null;
 
-        let imageUrl
-        if(image){
-            const result = await cloudinary.uploader.upload(image)
+        if (req.file) {
+            // Upload to Cloudinary
+            const uploadResult = await new Promise((resolve, reject) => {
+                const uploadStream = cloudinary.uploader.upload_stream(
+                    { folder: "team_images" },
+                    (error, result) => {
+                        if (error) return reject(error);
+                        resolve(result);
+                    }
+                );
+                uploadStream.end(req.file.buffer); // Send the file buffer
+            });
 
-            imageUrl = result.url
+            imageUrl = uploadResult.secure_url;
+
         }
+
 
         let galleryUrls = [];
         if(eventGallery){
@@ -59,11 +72,25 @@ export async function updateEvent(req, res) {
             return res.status(404).json({ success: false, data: 'Event does not exist' });
         }
 
-        let imageUrl = findEvent.image; // Default to existing image
-        if (image) {
-            const result = await cloudinary.uploader.upload(image);
-            imageUrl = result.url;
+        let imageUrl = null;
+
+        if (req.file) {
+            // Upload to Cloudinary
+            const uploadResult = await new Promise((resolve, reject) => {
+                const uploadStream = cloudinary.uploader.upload_stream(
+                    { folder: "team_images" },
+                    (error, result) => {
+                        if (error) return reject(error);
+                        resolve(result);
+                    }
+                );
+                uploadStream.end(req.file.buffer); // Send the file buffer
+            });
+
+            imageUrl = uploadResult.secure_url;
+
         }
+
 
         let galleryUrls = [];
         if(eventGallery){
