@@ -177,30 +177,30 @@ export async function getEvents(req, res) {
 // GET PAST EVENTS
 export async function getPastEvents(req, res) {
     try {
-        const today = new Date(); // Current date
+        const today = new Date().toISOString().split('T')[0]; // Get current date as 'YYYY-MM-DD'
         const pastEvents = await EventModel.find({ 
-            eventDate: { $lt: today.toISOString().split('T')[0] } 
+            eventDate: { $lt: today } // Compare as strings
         }).select('-_id');
 
         res.status(200).json({ success: true, data: pastEvents });
     } catch (error) {
         console.error('UNABLE TO GET ALL PAST EVENTS', error);
-        res.status(500).json({ success: false, message: 'Unable to fetch past events' });
+        res.status(500).json({ success: false, message: 'Unable to fetch past events', error: error.message });
     }
 }
 
 // GET FUTURE EVENTS
 export async function getFutureEvents(req, res) {
     try {
-        const today = new Date(); // Current date
+        const today = new Date().toISOString().split('T')[0]; // Get current date as 'YYYY-MM-DD'
         const futureEvents = await EventModel.find({ 
-            eventDate: { $gte: today.toISOString().split('T')[0] } 
+            eventDate: { $gte: today } // Compare as strings
         }).select('-_id');
 
         res.status(200).json({ success: true, data: futureEvents });
     } catch (error) {
         console.error('UNABLE TO GET ALL FUTURE EVENTS', error);
-        res.status(500).json({ success: false, message: 'Unable to fetch future events' });
+        res.status(500).json({ success: false, message: 'Unable to fetch future events', error: error.message });
     }
 }
 
