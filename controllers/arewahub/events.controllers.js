@@ -177,9 +177,9 @@ export async function getEvents(req, res) {
 // GET PAST EVENTS
 export async function getPastEvents(req, res) {
     try {
-        const today = new Date().toISOString().split('T')[0]; // Get current date as 'YYYY-MM-DD'
-        const pastEvents = await EventModel.find({ 
-            eventDate: { $lt: today, $exists: true, $ne: null } // Ensure eventDate exists and is not null
+        const today = new Date(); // Get the current date
+        const pastEvents = await EventModel.find({
+            eventDate: { $lt: today, $exists: true, $ne: null } // Compare as Date
         }).select('-_id');
 
         res.status(200).json({ success: true, data: pastEvents });
@@ -192,9 +192,9 @@ export async function getPastEvents(req, res) {
 // GET FUTURE EVENTS
 export async function getFutureEvents(req, res) {
     try {
-        const today = new Date().toISOString().split('T')[0]; // Get current date as 'YYYY-MM-DD'
-        const futureEvents = await EventModel.find({ 
-            eventDate: { $gte: today, $exists: true, $ne: null } // Ensure eventDate exists and is not null
+        const today = new Date(); // Get the current date
+        const futureEvents = await EventModel.find({
+            eventDate: { $gte: today, $exists: true, $ne: null } // Compare as Date
         }).select('-_id');
 
         res.status(200).json({ success: true, data: futureEvents });
