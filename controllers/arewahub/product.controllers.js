@@ -122,6 +122,18 @@ export async function getAllProduct(req, res) {
     }
 }
 
+//FETCH PRODUCT FPR USER
+export async function fetchProducts(req, res) {
+    try {
+        const allProduct = await ProductModel.find({ active: true }).select('-_id')
+
+        res.status(200).json({ success: true, data: allProduct })
+    } catch (error) {
+        console.log('UNABLE TO GET ALL PRODUCT', error)
+        res.status(500).json({ success: false, data: 'Unable to get all product' })
+    }
+}
+
 export async function getAProduct(req, res) {
     const { id } = req.params
     if(!id){

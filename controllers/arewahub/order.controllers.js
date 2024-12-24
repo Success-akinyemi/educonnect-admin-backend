@@ -14,9 +14,6 @@ export async function newOrder(req, res) {
     if (!phoneNumber) {
         return res.status(400).json({ success: false, data: 'Customer phone number is required' });
     }
-    if (!address) {
-        return res.status(400).json({ success: false, data: 'Customer address is required' });
-    }
     if (items?.length < 1) {
         return res.status(400).json({ success: false, data: 'At least one product is required' });
     }

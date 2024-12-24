@@ -3,7 +3,7 @@ import DonationModel from "../../models/acn/Donations.js"
 
 export async function newDonation(req, res) {
     const { firstName, lastName, email, phoneNumber, country, amount, type } = req.body
-    if(!firstName || !lastName || !email || !phoneNumber || !country || !amount){
+    if(!firstName || !lastName || !email || !phoneNumber || !country || !type){
         return res.status(400).json({ success: false, data: 'Fill all fields.' })
     }
     try {
@@ -11,7 +11,7 @@ export async function newDonation(req, res) {
         console.log('DONATION ID', donationId)
 
         const newTeamMember = await DonationModel.create({
-            firstName, lastName, email, phoneNumber, country, donationId, amount
+            firstName, lastName, email, phoneNumber, country, donationId, type
         })
         
         res.status(210).json({ success: false, data: 'Donation created' })

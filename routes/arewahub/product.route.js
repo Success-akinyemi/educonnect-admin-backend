@@ -13,6 +13,7 @@ router.post('/toggleActive', AuthenticateAdmin, controllers.toggleActiveStatus)
 
 //GET ROUTES
 router.get('/products', controllers.getAllProduct)
+router.get('/fetchProducts', controllers.fetchProducts)
 router.get('/product/:id', controllers.getAProduct)
 
 export default router
