@@ -33,21 +33,23 @@ export async function addProdcut(req, res) {
         
         let imageUrl = null;
 
-        if (req.file) {
+        if (req.files?.image?.[0]) {
+            const file = req.files.image[0];
+
             // Upload to Cloudinary
             const uploadResult = await new Promise((resolve, reject) => {
                 const uploadStream = cloudinary.uploader.upload_stream(
-                    { folder: "product_images" },
+                    { folder: "team_images" },
                     (error, result) => {
                         if (error) return reject(error);
                         resolve(result);
                     }
                 );
-                uploadStream.end(req.file.buffer); // Send the file buffer
+                uploadStream.end(file.buffer); // Use the file buffer from Multer
             });
 
             imageUrl = uploadResult.secure_url;
-
+            console.log("Uploaded image URL:", imageUrl);
         }
 
         const newProduct = await ProductModel.create({
@@ -72,21 +74,23 @@ export async function editProduct(req, res) {
 
         let imageUrl = null;
 
-        if (req.file) {
+        if (req.files?.image?.[0]) {
+            const file = req.files.image[0];
+
             // Upload to Cloudinary
             const uploadResult = await new Promise((resolve, reject) => {
                 const uploadStream = cloudinary.uploader.upload_stream(
-                    { folder: "product_images" },
+                    { folder: "team_images" },
                     (error, result) => {
                         if (error) return reject(error);
                         resolve(result);
                     }
                 );
-                uploadStream.end(req.file.buffer); // Send the file buffer
+                uploadStream.end(file.buffer); // Use the file buffer from Multer
             });
 
             imageUrl = uploadResult.secure_url;
-
+            console.log("Uploaded image URL:", imageUrl);
         }
 
         const updateProduct = await ProductModel.findByIdAndUpdate(

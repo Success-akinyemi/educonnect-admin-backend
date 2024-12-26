@@ -1,6 +1,8 @@
+import mailer from "../middlewares/mailer.js";
 import { generateUniqueCode } from "../middlewares/utils.js"
 import NewsLetterModel from "../models/NewsLetter.js"
 import { v2 as cloudinary } from "cloudinary";
+import SuscriberModel from "../models/Subscribers.js";
 
 // Cloudinary Configuration
 cloudinary.config({
@@ -19,13 +21,14 @@ export const newNewsletter = async (req, res) => {
     try {
         const newsLetterId = await generateUniqueCode(8);
         let imageUrl = null;
+        console.log('object', req.files)
         if (req.files?.image?.[0]) {
             const file = req.files.image[0];
 
             // Upload to Cloudinary
             const uploadResult = await new Promise((resolve, reject) => {
                 const uploadStream = cloudinary.uploader.upload_stream(
-                    { folder: "team_images" },
+                    { folder: "newsletter_images" },
                     (error, result) => {
                         if (error) return reject(error);
                         resolve(result);
@@ -42,15 +45,38 @@ export const newNewsletter = async (req, res) => {
             title, message, website, newsLetterId, author, caption, url, image: imageUrl
         });
 
-        console.log('MEMEM', newNewsletterData)
+        // Get all subscribers based on the website value
+        const subscribers = website.toLowerCase() === 'all'
+            ? await SuscriberModel.find().select('email -_id') // Get all emails
+            : await SuscriberModel.find({ website }).select('email -_id'); // Get emails for the specific website
 
-        res.status(201).json({ success: true, data: "New news letter created successfully." });
+        // Send emails to all subscribers
+        const emails = subscribers.map(subscriber => subscriber.email); // Extract emails
+        const emailPromises = emails.map(email =>
+            mailer({
+                to: email,
+                subject: newNewsletterData.title,
+                text: `
+                        <div>
+                            ${newNewsletterData.message}
+                            ${image ? `<img src="${newNewsletterData?.image}" alt="Newsletter Image" style="width: 100%; height: auto;" />` : ''}
+                        </div>
+                    `,
+            }).catch(err => {
+                console.error(`Failed to send email to ${email}:`, err.message);
+            })
+        );
+
+        await Promise.all(emailPromises); // Wait for all emails to be sent
+
+        console.log('Newsletter created and emails sent.');
+
+        res.status(201).json({ success: true, data: "New newsletter created and emails sent successfully." });
     } catch (error) {
         console.error("Error creating new newsletter:", error);
         res.status(500).json({ success: false, data: "Unable to create new newsletter." });
     }
 };
-
 
 export async function editNewsLetter(req, res) {
     const { id, title, message, website, author, caption, url, image } = req.body;
@@ -69,7 +95,7 @@ export async function editNewsLetter(req, res) {
             // Upload to Cloudinary
             const uploadResult = await new Promise((resolve, reject) => {
                 const uploadStream = cloudinary.uploader.upload_stream(
-                    { folder: "team_images" },
+                    { folder: "newsletter_images" },
                     (error, result) => {
                         if (error) return reject(error);
                         resolve(result);
@@ -97,6 +123,34 @@ export async function editNewsLetter(req, res) {
             { new: true}
         )
         console.log('News Letter Updated', updateNewsletter)
+
+                // Get all subscribers based on the website value
+                const subscribers = website.toLowerCase() === 'all'
+                ? await SuscriberModel.find().select('email -_id') // Get all emails
+                : await SuscriberModel.find({ website }).select('email -_id'); // Get emails for the specific website
+    
+            // Send emails to all subscribers
+            const emails = subscribers.map(subscriber => subscriber.email); // Extract emails
+            const emailPromises = emails.map(email =>
+                mailer({
+                    to: email,
+                    subject: updateNewsletter.title,
+                    text: `
+                            <div>
+                                ${updateNewsletter.message}
+                                ${image ? `<img src="${updateNewsletter?.image}" alt="Newsletter Image" style="width: 100%; height: auto;" />` : ''}
+                            </div>
+                        `,
+                }).catch(err => {
+                    console.error(`Failed to send email to ${email}:`, err.message);
+                })
+            );
+    
+            await Promise.all(emailPromises); // Wait for all emails to be sent
+    
+            console.log('Newsletter created and emails sent.');
+
+            
         res.status(201).json({ success: true, data: 'News letter updated' })
     } catch (error) {
         console.log('UNABLE TO UPDATE TEAM MEMBER', error)

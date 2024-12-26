@@ -9,7 +9,7 @@ import cloudinary from "cloudinary";
 const mailGenerator = new Mailgen({
     theme: 'default',
     product: {
-        name: 'Edu Africa',
+        name: 'Edu Connect',
         link: `${process.env.APP_LINK}`
     }
 })

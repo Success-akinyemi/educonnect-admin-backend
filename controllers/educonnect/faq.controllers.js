@@ -27,31 +27,20 @@ export async function newFaq(req, res) {
 export async function updateFaq(req, res) {
     const { id, question, answer } = req.body;
 
-    if (!id) {
-        return res.status(400).json({ success: false, data: 'ID is required' });
-    }
-
-    // Prepare update object based on provided data
-    const updateData = {};
-
-    if (question) {
-        updateData['faqs.$.question'] = question;
-    }
-
-    if (answer) {
-        updateData['faqs.$.answer'] = answer;
-    }
-
-    // If neither question nor answer is provided, return an error
-    if (Object.keys(updateData).length === 0) {
-        return res.status(400).json({ success: false, data: 'Question or answer is required to update' });
+    if (!id || !question || !answer) {
+        return res.status(400).json({ success: false, data: 'ID, question, and answer are required' });
     }
 
     try {
         const updatedFaq = await FaqModel.findOneAndUpdate(
             { 'faqs._id': id }, 
-            { $set: updateData }, 
-            { new: true }
+            { 
+                $set: { 
+                    'faqs.$.question': question, 
+                    'faqs.$.answer': answer 
+                } 
+            }, 
+            { new: true } 
         );
 
         if (!updatedFaq) {
@@ -99,6 +88,17 @@ export async function toggleFaqActive(req, res) {
     } catch (error) {
         console.error('UNABLE TO UPDATE FAQ', error);
         res.status(500).json({ success: false, data: 'Unable to update FAQ data' });
+    }
+}
+
+export async function getAllFaq(req, res) {
+    try {
+        const faqData = await FaqModel.find()
+
+        res.status(200).json({ success: true, data: faqData })
+    } catch (error) {
+        console.log('UNABLE TO GET FAQS', error)
+        res.status(500).json({ success: false, data: 'Unable to get faq data' })
     }
 }
 

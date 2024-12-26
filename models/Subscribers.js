@@ -8,7 +8,10 @@ const SuscriberSchema = new mongoose.Schema({
     website: {
         type: String,
         required: [ true, 'Website base is required'],
-        enum: [ 'educonnect', 'acn', 'arewahub' ]
+        enum: [ 'educonnect', 'acn', 'arewahub', 'eduafrica' ]
+    },
+    siteName: {
+        type: String
     }
 })
 

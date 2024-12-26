@@ -17,10 +17,15 @@ export async function addSuscriber(req, res) {
             siteName = 'Edu Africa'
         }
         if(website == 'acn'){
-            siteName = 'Afrivan Child Network'
+            siteName = 'African Child Network'
         }
         if(website == 'arewahub'){
             siteName = 'Arewa Hub'
+        }
+
+        const emailSubscriberExist = await SuscriberModel.findOne({  email: email, website: website })
+        if(emailSubscriberExist){
+            return res.status(400).json({ success: false, data: 'Subscriber already exist' })
         }
         const newSubscribers = await SuscriberModel.create({
             email, website, siteName
@@ -34,9 +39,16 @@ export async function addSuscriber(req, res) {
 }
 
 export async function removeSuscriber(req, res) {
-    const { email } = req.body
+    const { email, website } = req.body
     try {
-        
+        const emailSubscriberExist = await SuscriberModel.findOne({  email: email, website: website })
+        if(!emailSubscriberExist){
+            return res.status(400).json({ success: false, data: 'Subscriber does not exist' })
+        }
+
+        const deleteSubscriber = await SuscriberModel.findByIdAndDelete({ _id: emailSubscriberExist?._id })
+
+        res.status(200).json({ success: false, data: 'Subscriber deleted successful'})
     } catch (error) {
         console.log('UNABLE TO ADD SUSCRIPTION', error)
         res.status(500).json({ success: false, data: 'Unable to add subscription' })
