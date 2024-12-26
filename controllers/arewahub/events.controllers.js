@@ -177,30 +177,50 @@ export async function getEvents(req, res) {
 // GET PAST EVENTS
 export async function getPastEvents(req, res) {
     try {
-        const today = new Date(); // Get the current date
-        const pastEvents = await EventModel.find({
-            eventDate: { $lt: today, $exists: true, $ne: null } // Compare as Date
-        }).select('-_id');
+        const today = new Date(); // Current date
+        const events = await EventModel.find({
+            eventDate: { $exists: true, $ne: null }, // Ensure eventDate exists
+        }).lean();
+
+        // Filter events with eventDate less than today
+        const pastEvents = events.filter((event) => {
+            const eventDate = new Date(event.eventDate);
+            return eventDate < today;
+        });
 
         res.status(200).json({ success: true, data: pastEvents });
     } catch (error) {
-        console.error('UNABLE TO GET ALL PAST EVENTS', error);
-        res.status(500).json({ success: false, message: 'Unable to fetch past events', error: error.message });
+        console.error('UNABLE TO GET PAST EVENTS', error);
+        res.status(500).json({
+            success: false,
+            message: 'Unable to fetch past events',
+            error: error.message,
+        });
     }
 }
 
 // GET FUTURE EVENTS
 export async function getFutureEvents(req, res) {
     try {
-        const today = new Date(); // Get the current date
-        const futureEvents = await EventModel.find({
-            eventDate: { $gte: today, $exists: true, $ne: null } // Compare as Date
-        }).select('-_id');
+        const today = new Date(); // Current date
+        const events = await EventModel.find({
+            eventDate: { $exists: true, $ne: null }, // Ensure eventDate exists
+        }).lean();
+
+        // Filter events with eventDate greater than or equal to today
+        const futureEvents = events.filter((event) => {
+            const eventDate = new Date(event.eventDate);
+            return eventDate >= today;
+        });
 
         res.status(200).json({ success: true, data: futureEvents });
     } catch (error) {
-        console.error('UNABLE TO GET ALL FUTURE EVENTS', error);
-        res.status(500).json({ success: false, message: 'Unable to fetch future events', error: error.message });
+        console.error('UNABLE TO GET FUTURE EVENTS', error);
+        res.status(500).json({
+            success: false,
+            message: 'Unable to fetch future events',
+            error: error.message,
+        });
     }
 }
 
