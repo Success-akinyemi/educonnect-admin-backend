@@ -13,5 +13,8 @@ router.post('/togglePayment', AuthenticateAdmin, controllers.togglePayment)
 //GET ROUTES
 router.get('/fetAllOrders', AuthenticateAdmin, controllers.fetAllOrders)
 router.get('/fetchOrder/:id', AuthenticateAdmin, controllers.fetchOrder)
+router.get('/getRevenueAndOrder/:period', AuthenticateAdmin, controllers.getRevenueAndOrder)
+router.get('/getTopSellingProduct', AuthenticateAdmin, controllers.getTopSellingProduct)
+
 
 export default router

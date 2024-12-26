@@ -14,6 +14,8 @@ import authRoute from './routes/auth.routes.js';
 import AdminRoute from './routes/adminAuth.controllers.js';
 import testimonialsRoutes from './routes/testimonials.routes.js';
 import subscribeRoutes from './routes/suscribe.routes.js';
+import newsLetterRoutes from './routes/newsLetter.routes.js';
+
 
 
 //EDUCONNECT
@@ -120,6 +122,8 @@ app.use('/api/auth', authRoute);
 app.use('/api/admin', AdminRoute);
 app.use('/api/suscribe', subscribeRoutes);
 app.use('/api/testimony', testimonialsRoutes);
+app.use('/api/newsLetter', newsLetterRoutes);
+
 
 
 //EDUCONNECT

@@ -13,6 +13,9 @@ export async function addSuscriber(req, res) {
         if(website == 'educonnect'){
             siteName = 'Edu Connect Africa'
         }
+        if(website == 'eduafrica'){
+            siteName = 'Edu Africa'
+        }
         if(website == 'acn'){
             siteName = 'Afrivan Child Network'
         }
@@ -20,7 +23,7 @@ export async function addSuscriber(req, res) {
             siteName = 'Arewa Hub'
         }
         const newSubscribers = await SuscriberModel.create({
-            email, website
+            email, website, siteName
         })
 
         res.status(200).json({ success: true, data: `Succesful subscribe to ${siteName ? siteName : ''} newsletter` })

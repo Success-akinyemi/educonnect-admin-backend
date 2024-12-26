@@ -13,6 +13,8 @@ router.post('/deleteDonation', AuthenticateAdmin, controllers.deleteDonation )
 //GET ROUTES
 router.get('/getAllDonation', controllers.getAllDonation )
 router.get('/getADonation/:id', controllers.getDonation )
+router.get('/getDonationStats/:period', controllers.getDonationStats )
+
 
 
 

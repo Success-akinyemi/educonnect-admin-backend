@@ -1,6 +1,7 @@
 import { generateUniqueCode } from "../../middlewares/utils.js"
 import OrderModel from "../../models/arewahub/Orders.js"
 import ProductModel from "../../models/arewahub/Product.js"
+import moment from 'moment'; 
 
 export async function newOrder(req, res) {
     const { customerName, customerEmail, phoneNumber, address, items } = req.body;
@@ -47,7 +48,8 @@ export async function newOrder(req, res) {
                 price: product.price,
                 quantity: quantity,
                 total: itemTotal,
-                image: product?.image
+                image: product?.image,
+                productForm: product?.productForm
             };
         });
 
@@ -146,5 +148,208 @@ export async function fetchOrder(req, res) {
     } catch (error) {
         console.log('UNABLE TO GET ORDER', error)
         res.status(500).json({ success: false, data: 'Failed to get order' })
+    }
+}
+
+// Helper function to calculate the date range based on selected period
+function getDateRange(period, isPrevious = false) {
+    const now = moment();
+    let startDate;
+
+    // Adjust based on whether you're calculating the previous period
+    if (isPrevious) {
+        now.subtract(1, 'day'); // Move one day back to get the full range of the previous period
+    }
+
+    switch (period) {
+        case '12mth':
+            startDate = now.clone().subtract(12, 'months'); // Use clone to preserve the original 'now'
+            break;
+        case '3mth':
+            startDate = now.clone().subtract(3, 'months');
+            break;
+        case '30days':
+            startDate = now.clone().subtract(30, 'days');
+            break;
+        case '7days':
+            startDate = now.clone().subtract(7, 'days');
+            break;
+        case '24hrs':
+            startDate = now.clone().subtract(24, 'hours');
+            break;
+        default:
+            startDate = now.clone().subtract(30, 'days'); // Default to 30 days if no period is selected
+            break;
+    }
+
+    return { startDate: startDate.toDate(), endDate: now.toDate() };
+}
+
+// Endpoint to get revenue and order details
+export async function getRevenueAndOrder(req, res) {
+    try {
+        const { period } = req.params; // Get the selected period from the URL params (e.g., '12mth', '3mth')
+        console.log('PERIOD:', period);
+
+        // Validate the period parameter
+        if (!period || !['12mth', '3mth', '30days', '7days', '24hrs'].includes(period)) {
+            return res.status(400).json({ success: false, message: 'Invalid period provided.' });
+        }
+
+        // Get current period date range
+        const { startDate, endDate } = getDateRange(period);
+
+        // Fetch orders within the selected period (current period)
+        const paidOrders = await OrderModel.aggregate([
+            { $match: { paid: true, createdAt: { $gte: startDate, $lte: endDate } } },
+            { $group: { _id: null, totalPaid: { $sum: '$amount' } } }
+        ]);
+
+        const pendingOrders = await OrderModel.aggregate([
+            { $match: { status: 'Pending', createdAt: { $gte: startDate, $lte: endDate } } },
+            { $group: { _id: null, totalCount: { $sum: 1 } } } // Count total number of pending orders
+        ]);
+
+        const approvedOrders = await OrderModel.aggregate([
+            { $match: { status: 'Approved', createdAt: { $gte: startDate, $lte: endDate } } },
+            { $group: { _id: null, totalCount: { $sum: 1 } } } // Count total number of approved orders
+        ]);
+
+        const allOrders = await OrderModel.aggregate([
+            { $match: { createdAt: { $gte: startDate, $lte: endDate } } },
+            { $group: { _id: null, totalCount: { $sum: 1 } } } // Count total number of all orders
+        ]);
+
+        // Get previous period data (calculate previous period range)
+        const { startDate: prevStartDate, endDate: prevEndDate } = getDateRange(period, true); // isPrevious = true
+
+        // Fetch orders for the previous period
+        const prevPaidOrders = await OrderModel.aggregate([
+            { $match: { paid: true, createdAt: { $gte: prevStartDate, $lte: prevEndDate } } },
+            { $group: { _id: null, totalPaid: { $sum: '$amount' } } } // Sum up the amount for paid orders
+        ]);
+
+        const prevPendingOrders = await OrderModel.aggregate([
+            { $match: { status: 'Pending', createdAt: { $gte: prevStartDate, $lte: prevEndDate } } },
+            { $group: { _id: null, totalCount: { $sum: 1 } } } // Count total number of pending orders
+        ]);
+
+        const prevApprovedOrders = await OrderModel.aggregate([
+            { $match: { status: 'Approved', createdAt: { $gte: prevStartDate, $lte: prevEndDate } } },
+            { $group: { _id: null, totalCount: { $sum: 1 } } } // Count total number of approved orders
+        ]);
+
+        const prevAllOrders = await OrderModel.aggregate([
+            { $match: { createdAt: { $gte: prevStartDate, $lte: prevEndDate } } },
+            { $group: { _id: null, totalCount: { $sum: 1 } } } // Count total number of all orders
+        ]);
+
+        // Calculate percentages and determine whether the percentage is positive or negative
+        const calculatePercentage = (currentValue, previousValue) => {
+            if (previousValue === 0) {
+                return { percentage: currentValue === 0 ? 0 : 100, percentageType: 'positive' };
+            }
+            const percentage = ((currentValue - previousValue) / previousValue) * 100;
+            const percentageType = percentage >= 0 ? 'positive' : 'negative';
+            return { percentage, percentageType };
+        };
+
+        const paidPercentageData = calculatePercentage(paidOrders[0]?.totalPaid || 0, prevPaidOrders[0]?.totalPaid || 0);
+        const pendingPercentageData = calculatePercentage(pendingOrders[0]?.totalCount || 0, prevPendingOrders[0]?.totalCount || 0);
+        const approvedPercentageData = calculatePercentage(approvedOrders[0]?.totalCount || 0, prevApprovedOrders[0]?.totalCount || 0);
+        const allOrdersPercentageData = calculatePercentage(allOrders[0]?.totalCount || 0, prevAllOrders[0]?.totalCount || 0);
+
+        const data = {
+            totalRevenue: {
+                total: paidOrders.length ? paidOrders[0].totalPaid : 0,
+                percentage: paidPercentageData.percentage,
+                percentageType: paidPercentageData.percentageType,
+            },
+            totalPending: { 
+                total: pendingOrders.length ? pendingOrders[0].totalCount : 0,
+                percentage: pendingPercentageData.percentage,
+                percentageType: pendingPercentageData.percentageType,
+            },
+            totalApproved: {
+                total: approvedOrders.length ? approvedOrders[0].totalCount : 0,
+                percentage: approvedPercentageData.percentage,
+                percentageType: approvedPercentageData.percentageType,
+            },
+            totalPeopleOrder: {
+                total: allOrders.length ? allOrders[0].totalCount : 0,
+                percentage: allOrdersPercentageData.percentage,
+                percentageType: allOrdersPercentageData.percentageType,
+            }
+        };
+
+        // Sending response
+        res.status(200).json({
+            success: true,
+            data: data
+        });
+
+    } catch (error) {
+        console.log('UNABLE TO GET REVENUES AND ORDERS', error);
+        res.status(500).json({ success: false, message: 'Unable to get order and revenue details' });
+    }
+}
+
+//
+export async function getTopSellingProduct(req, res) {
+    try {
+        const orders = await OrderModel.find({ status: "Approved" }).lean();
+        if (!orders.length) {
+            return res.status(404).json({
+                success: false,
+                message: "No approved orders found",
+            });
+        }
+
+        const allProductIds = [];
+        const bookProductIds = [];
+
+        orders.forEach((order) => {
+            order.items?.forEach((item) => {
+                if (item.productId) allProductIds.push(item.productId);
+                if (item.productForm === "book") bookProductIds.push(item.productId);
+            });
+        });
+
+        const getTopOccurrences = (arr) => {
+            const counts = arr.reduce((acc, id) => {
+                acc[id] = (acc[id] || 0) + 1;
+                return acc;
+            }, {});
+
+            return Object.entries(counts)
+                .sort(([, a], [, b]) => b - a)
+                .slice(0, 5)
+                .map(([id]) => id);
+        };
+
+        const topProductIds = getTopOccurrences(allProductIds);
+        const topBookProductIds = getTopOccurrences(bookProductIds);
+
+        const topSellingProducts = await ProductModel.find({
+            productId: { $in: topProductIds },
+        }).lean();
+
+        const topSellingBooks = await ProductModel.find({
+            productId: { $in: topBookProductIds },
+        }).lean();
+
+        console.log("Response Payload:", { topSellingProducts, topSellingBooks });
+        const responsePayload = await { topSellingProducts, topSellingBooks }
+        console.log("Sending Response Payload:", JSON.stringify(responsePayload, null, 2));
+        res.status(200).json({
+            success: true,
+            data: responsePayload
+        });
+    } catch (error) {
+        console.log("UNABLE TO GET TOP SELLING PRODUCT", error);
+        res.status(500).json({
+            success: false,
+            data: "Unable to get top selling product",
+        });
     }
 }

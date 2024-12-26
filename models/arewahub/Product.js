@@ -34,6 +34,9 @@ const ProductSchema = new mongoose.Schema({
         type: String,
         //required: [ true, 'Product type is required' ]
     },
+    productForm: {
+        type: String
+    },
     active: {
         type: Boolean,
         default: true

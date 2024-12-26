@@ -11,7 +11,7 @@ cloudinary.config({
 
 //ADD PRODUCT
 export async function addProdcut(req, res) {
-    const { productName, quantityInStock, price, priceCurrency, description, image, productType } = req.body
+    const { productName, quantityInStock, price, priceCurrency, description, image, productType, productForm } = req.body
     if(!productName){
         return res.status(400).json({ success: true, data: 'Provide a product name' })
     }
@@ -51,7 +51,7 @@ export async function addProdcut(req, res) {
         }
 
         const newProduct = await ProductModel.create({
-            productName, productId: productCode, quantityInStock, price, description, image: imageUrl, productType, priceCurrency
+            productName, productId: productCode, quantityInStock, price, description, productForm, image: imageUrl, productType, priceCurrency
         })
         
         res.status(201).json({ success: true, data: 'New Product created' })
@@ -62,7 +62,7 @@ export async function addProdcut(req, res) {
 }
 
 export async function editProduct(req, res) {
-    const { _id, productName, quantityInStock, price, description, image, priceCurrency } = req.body
+    const { _id, productName, quantityInStock, price, description, productForm, image, priceCurrency } = req.body
 
     try {
         const getProduct = await ProductModel.findOne({ productId: _id })
@@ -98,7 +98,8 @@ export async function editProduct(req, res) {
                     price,
                     description,
                     image: imageUrl,
-                    priceCurrency
+                    priceCurrency,
+                    productForm
                 },
             },
             { new: true }
@@ -197,3 +198,4 @@ export async function toggleActiveStatus(req, res) {
         res.status(500).json({ success: false, data: 'Unable to update product active status' })
     }
 }
+

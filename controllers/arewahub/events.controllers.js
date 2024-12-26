@@ -237,3 +237,44 @@ export async function deleteEvent(req, res) {
         res.status(500).json({ success: false, data: 'Unable to delete event data' })
     }
 }
+
+//GET LATEST PAST AND FUTURE EVENT 
+export async function getLatestEvents(req, res) {
+    try {
+        const currentDate = new Date();
+
+        // Find the latest past event (events before today, sorted in descending order by eventDate)
+        const latestPastEvent = await EventModel.find({
+            eventDate: { $lt: currentDate }
+        })
+            .sort({ eventDate: -1 })  // Sort by eventDate in descending order
+            .limit(1);  // Get only the latest one
+
+        // Find the nearest future event (events after today, sorted in ascending order by eventDate)
+        const nearestFutureEvent = await EventModel.find({
+            eventDate: { $gt: currentDate }
+        })
+            .sort({ eventDate: 1 })  // Sort by eventDate in ascending order
+            .limit(1);  // Get only the nearest one
+
+        // Check if any events were found
+        if (!latestPastEvent.length && !nearestFutureEvent.length) {
+            return res.status(404).json({
+                success: false,
+                message: 'No past or future events found',
+            });
+        }
+
+        // Send the response with both events
+        res.status(200).json({
+            success: true,
+            data: {
+                latestPastEvent: latestPastEvent[0] || null,  // If no past event, return null
+                nearestFutureEvent: nearestFutureEvent[0] || null,  // If no future event, return null
+            },
+        });
+    } catch (error) {
+        console.log('UNABLE TO GET EVENTS', error);
+        res.status(500).json({ success: false, data: 'Unable to get events' });
+    }
+}
