@@ -129,6 +129,9 @@ export async function getFaq(req, res) {
     if (!id) {
         return res.status(400).json({ success: false, data: 'Provide an ID' });
     }
+    if (id === 'noid') {
+        return
+    }
 
     try {
         const faqData = await FaqModel.findOne({ 'faqs._id': id }, { 'faqs.$': 1 });
