@@ -570,7 +570,7 @@ paths:
   /api/suscribe/addSuscriber:
     post:
       summary: Add user to news letter
-      description: This endpoint add user to newdletter list. requires user email, and website to identify the website user want to subscribe to website value options = ['educonnect', 'acn', 'arewahub', 'educonnect']
+      description: This endpoint add user to newdletter list. requires user email, and website to identify the website user want to subscribe to website value options = ['educonnect', 'acn', 'arewahub', 'eduafrica', 'eduafricawaitlist']
       parameters:
         - name: body
           in: body

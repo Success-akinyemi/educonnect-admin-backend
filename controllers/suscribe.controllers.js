@@ -16,6 +16,9 @@ export async function addSuscriber(req, res) {
         if(website == 'eduafrica'){
             siteName = 'Edu Africa'
         }
+        if(website == 'eduafricawaitlist'){
+            siteName = 'Edu Africa Waitlist'
+        }
         if(website == 'acn'){
             siteName = 'African Child Network'
         }
