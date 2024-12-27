@@ -11,7 +11,7 @@ cloudinary.config({
 
 // NEW EVENT
 export async function newEvent(req, res) {
-    const { eventName, location, speakers, schedule, eventDescription, eventDate, eventTime } = req.body;
+    const { eventName, location, speakers, schedule, eventDescription, eventDate, eventTime, registerUrl } = req.body;
     console.log('object', req.files, req.body)
     if (!eventName) {
         return res.status(400).json({ success: false, data: "Event name is required" });
@@ -68,6 +68,7 @@ export async function newEvent(req, res) {
             eventDate,
             eventTime,
             eventId,
+            registerUrl,
             image: imageUrl,
             eventGallery: galleryUrls,
         });
@@ -82,7 +83,7 @@ export async function newEvent(req, res) {
 
 //UPDATE EVENT
 export async function updateEvent(req, res) {
-    const { id, eventName, location, speakers, schedule, eventDescription, image, eventDate, eventTime, eventGallery } = req.body;
+    const { id, eventName, location, speakers, schedule, registerUrl, eventDescription, image, eventDate, eventTime, eventGallery } = req.body;
     console.log(req.body)
     try {
         // Find the event by eventId
@@ -143,6 +144,7 @@ export async function updateEvent(req, res) {
                     eventDescription,
                     image: imageUrl,
                     eventDate, 
+                    registerUrl,
                     eventTime,
                     eventGallery: galleryUrls
                 },
@@ -263,19 +265,44 @@ export async function getLatestEvents(req, res) {
     try {
         const currentDate = new Date();
 
-        // Find the latest past event (events before today, sorted in descending order by eventDate)
-        const latestPastEvent = await EventModel.find({
-            eventDate: { $lt: currentDate }
-        })
-            .sort({ eventDate: -1 })  // Sort by eventDate in descending order
-            .limit(1);  // Get only the latest one
+        // Convert eventDate strings to Date objects for comparison
+        const latestPastEvent = await EventModel.aggregate([
+            {
+                $addFields: {
+                    eventDateAsDate: { $toDate: "$eventDate" } // Convert eventDate string to Date
+                }
+            },
+            {
+                $match: {
+                    eventDateAsDate: { $lt: currentDate } // Filter past events
+                }
+            },
+            {
+                $sort: { eventDateAsDate: -1 } // Sort by eventDate in descending order
+            },
+            {
+                $limit: 1 // Get only the latest one
+            }
+        ]);
 
-        // Find the nearest future event (events after today, sorted in ascending order by eventDate)
-        const nearestFutureEvent = await EventModel.find({
-            eventDate: { $gt: currentDate }
-        })
-            .sort({ eventDate: 1 })  // Sort by eventDate in ascending order
-            .limit(1);  // Get only the nearest one
+        const nearestFutureEvent = await EventModel.aggregate([
+            {
+                $addFields: {
+                    eventDateAsDate: { $toDate: "$eventDate" } // Convert eventDate string to Date
+                }
+            },
+            {
+                $match: {
+                    eventDateAsDate: { $gt: currentDate } // Filter future events
+                }
+            },
+            {
+                $sort: { eventDateAsDate: 1 } // Sort by eventDate in ascending order
+            },
+            {
+                $limit: 1 // Get only the nearest one
+            }
+        ]);
 
         // Check if any events were found
         if (!latestPastEvent.length && !nearestFutureEvent.length) {
@@ -289,8 +316,8 @@ export async function getLatestEvents(req, res) {
         res.status(200).json({
             success: true,
             data: {
-                latestPastEvent: latestPastEvent[0] || null,  // If no past event, return null
-                nearestFutureEvent: nearestFutureEvent[0] || null,  // If no future event, return null
+                latestPastEvent: latestPastEvent[0] || null, // If no past event, return null
+                nearestFutureEvent: nearestFutureEvent[0] || null, // If no future event, return null
             },
         });
     } catch (error) {

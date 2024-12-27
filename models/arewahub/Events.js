@@ -22,6 +22,9 @@ const EventSchema = new mongoose.Schema({
     speakers: {
         type: String,
     },
+    registerUrl: {
+        type: String,
+    },
     schedule: {
         type: String
     },

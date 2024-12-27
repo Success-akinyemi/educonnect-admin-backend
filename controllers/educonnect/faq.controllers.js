@@ -140,13 +140,13 @@ export async function getFaq(req, res) {
     if (!id) {
         return res.status(400).json({ success: false, data: 'Provide an ID' });
     }
-    if (id === 'noid') {
-        return;
-    }
 
 
     try {
-        const faqData = await FaqModel.findOne({ 'faqs._id': id }, { 'faqs.$': 1 });
+        let faqData = {}
+        if(mongoose.Types.ObjectId.isValid(id)){
+            faqData = await FaqModel.findOne({ 'faqs._id': id }, { 'faqs.$': 1 });
+        }
 
         if (!faqData || !faqData.faqs || faqData.faqs.length === 0) {
             return res.status(404).json({ success: false, data: 'FAQ not found' });

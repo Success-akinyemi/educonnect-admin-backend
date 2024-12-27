@@ -1,3 +1,4 @@
+import mongoose from "mongoose"
 import FaqModel from "../../models/acn/Faq.js"
 
 export async function newFaq(req, res) {
@@ -125,16 +126,15 @@ export async function deleteFaq(req, res) {
 
 export async function getFaq(req, res) {
     const { id } = req.params;
-
+    console.log('OPOPO', id)
     if (!id) {
         return res.status(400).json({ success: false, data: 'Provide an ID' });
     }
-    if (id === 'noid') {
-        return
-    }
-
     try {
-        const faqData = await FaqModel.findOne({ 'faqs._id': id }, { 'faqs.$': 1 });
+        let faqData = {}
+        if(mongoose.Types.ObjectId.isValid(id)){
+            faqData = await FaqModel.findOne({ 'faqs._id': id }, { 'faqs.$': 1 });
+        }
 
         if (!faqData || !faqData.faqs || faqData.faqs.length === 0) {
             return res.status(404).json({ success: false, data: 'FAQ not found' });
