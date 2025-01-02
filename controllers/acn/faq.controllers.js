@@ -29,7 +29,7 @@ export async function updateFaq(req, res) {
     const { id, question, answer } = req.body;
 console.log(req.body)
     if (!id) {
-        return res.status(400).json({ success: false, data: 'ID, question, and answer are required' });
+        return res.status(400).json({ success: false, data: 'ID is required' });
     }
 
     try {
@@ -129,6 +129,11 @@ export async function getFaq(req, res) {
     console.log('OPOPO', id)
     if (!id) {
         return res.status(400).json({ success: false, data: 'Provide an ID' });
+    }
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+        console.log('INVALID MONGODB STRING')
+        return
+        //return res.status(400).json({ success: false, data: 'Invalid ID format' });
     }
     try {
         let faqData = {}

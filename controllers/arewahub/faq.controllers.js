@@ -1,3 +1,4 @@
+import mongoose from "mongoose"
 import FaqModel from "../../models/arewahub/Faq.js"
 
 export async function newFaq(req, res) {
@@ -27,8 +28,8 @@ export async function newFaq(req, res) {
 export async function updateFaq(req, res) {
     const { id, question, answer } = req.body;
 
-    if (!id || !question || !answer) {
-        return res.status(400).json({ success: false, data: 'ID, question, and answer are required' });
+    if (!id) {
+        return res.status(400).json({ success: false, data: 'ID is required' });
     }
 
     try {
@@ -128,6 +129,11 @@ export async function getFaq(req, res) {
 
     if (!id) {
         return res.status(400).json({ success: false, data: 'Provide an ID' });
+    }
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+        console.log('INVALID MONGODB STRING')
+        return
+        //return res.status(400).json({ success: false, data: 'Invalid ID format' });
     }
     try {
         let faqData = {}

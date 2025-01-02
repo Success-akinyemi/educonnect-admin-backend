@@ -1,3 +1,4 @@
+import mongoose from "mongoose"
 import FaqModel from "../../models/educonnect/Faq.js"
 
 export async function newFaq(req, res) {
@@ -26,9 +27,9 @@ export async function newFaq(req, res) {
 
 export async function updateFaq(req, res) {
     const { id, question, answer } = req.body;
-
-    if (!id || !question || !answer) {
-        return res.status(400).json({ success: false, data: 'ID, question, and answer are required' });
+    console.log(req.body)
+    if (!id) {
+        return res.status(400).json({ success: false, data: 'ID is required' });
     }
 
     try {
@@ -140,7 +141,13 @@ export async function getFaq(req, res) {
     if (!id) {
         return res.status(400).json({ success: false, data: 'Provide an ID' });
     }
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+        console.log('INVALID MONGODB STRING')
+        return
+        //return res.status(400).json({ success: false, data: 'Invalid ID format' });
+    }
 
+//console.log('object', id)
 
     try {
         let faqData = {}
@@ -156,5 +163,21 @@ export async function getFaq(req, res) {
     } catch (error) {
         console.error('UNABLE TO GET FAQ', error);
         res.status(500).json({ success: false, data: 'Unable to get FAQ data' });
+    }
+}
+
+
+//
+export async function deleteAllFaq(req, res) {
+    try {
+        const handleDeleteAll = await FaqModel.deleteMany()
+
+        const getFaq = await FaqModel.find()
+
+        console.log('FAQ DELETED')
+        res.status(200).json({ success: true, data: getFaq, message: 'Faq deleted' })
+    } catch (error) {
+        console.log('UNABLE TO DLETE ALL FAQ EDUCONNECT', error)
+        res.status(500).json({ success: false, data: 'Unable to deleted faq'})
     }
 }

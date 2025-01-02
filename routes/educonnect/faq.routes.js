@@ -9,6 +9,8 @@ router.post('/updateFaq', controllers.updateFaq )
 router.post('/deleteFaq', controllers.deleteFaq )
 router.post('/toggleFaqActive', controllers.toggleFaqActive )
 
+router.post('/deleteAllFaq', controllers.deleteAllFaq )
+
 
 //GET ROUTES
 router.get('/getAllFaq', controllers.getFaqs )
