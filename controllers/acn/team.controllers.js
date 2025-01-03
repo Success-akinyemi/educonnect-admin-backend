@@ -96,7 +96,7 @@ export async function editeam(req, res) {
                 $set: {
                     firstName,
                     lastName,
-                    image: imageUrl,
+                    image: imageUrl ? imageUrl : getTeamMember?.image,
                     position,
                     linkedinHandle, 
                     twitterHandle, 

@@ -142,7 +142,7 @@ export async function updateEvent(req, res) {
                     speakers,
                     schedule,
                     eventDescription,
-                    image: imageUrl,
+                    image: imageUrl ? imageUrl : findEvent?.image,
                     eventDate, 
                     registerUrl,
                     eventTime,

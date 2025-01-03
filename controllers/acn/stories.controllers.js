@@ -68,6 +68,7 @@ export async function newStory(req, res) {
 
 export async function updateStory(req, res) {
     const { id, title, story, category, caption, image, writers } = req.body
+    
     try {
         const findPost = await StoriesModel.findById({ _id: id })
         if(!findPost){
@@ -101,14 +102,14 @@ export async function updateStory(req, res) {
                     title,
                     story,
                     category,
-                    image: imageUrl,
+                    image: imageUrl ? imageUrl : findPost?.image,
                     writers,
                     caption
                 }
             },
             { new: true }
         )
-
+        console.log('updatePost', updatePost)
         res.status(201).json({ success: true, data: 'Updated successfull' })
     } catch (error) {
         console.log('UNABLE TO UPDATE NEWS POSTS', error)

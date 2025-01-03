@@ -27,7 +27,7 @@ const DonationSchema = new mongoose.Schema({
         type: String
     },
     donationType: {
-        String
+        type: String
     }
 },
 { timestamps: true} 

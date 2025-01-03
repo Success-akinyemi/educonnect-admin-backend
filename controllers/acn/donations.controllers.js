@@ -11,11 +11,11 @@ export async function newDonation(req, res) {
         const donationId = await generateUniqueCode(8)
         console.log('DONATION ID', donationId)
 
-        const newTeamMember = await DonationModel.create({
+        const newDonation = await DonationModel.create({
             firstName, lastName, email, phoneNumber, country, donationId, donationType
         })
         
-        res.status(210).json({ success: false, data: 'Donation created' })
+        res.status(201).json({ success: true, data: 'Donation created' })
     } catch (error) {
         console.log('UNABLE TO CREATE NEW DONATION', error)
         res.status(500).json({ success: false, data: 'Unable to create donation' })
@@ -24,9 +24,9 @@ export async function newDonation(req, res) {
 
 export async function getAllDonation(req, res) {
     try {
-        const getAllDonbations = await DonationModel.find().select('-_id')
+        const getAllDonations = await DonationModel.find().select('-_id').sort({ createdAt: -1 })
 
-        res.status(200).json({ success: false, data: getAllDonbations })
+        res.status(200).json({ success: false, data: getAllDonations })
     } catch (error) {
         console.log('UNABLE TO GET ALL DONATIONS', error)
         res.status(500).json({ success: false, data: 'Unable to get all donations' }) 
@@ -49,11 +49,12 @@ export async function getDonation(req, res) {
 }
 
 export async function toggleActiveStatus(req, res) {
-    const { id } = req.params
+    const { id } = req.body
+    console.log('object', id)
     try {
         const getDonationData = await DonationModel.findOne({ donationId: id })
         if(!getDonationData){
-            return res.status(404).json({ success: false, data: 'Team Memeber not found' })
+            return res.status(404).json({ success: false, data: 'Donation not found' })
         }
 
         getDonationData.status = !getDonationData.status

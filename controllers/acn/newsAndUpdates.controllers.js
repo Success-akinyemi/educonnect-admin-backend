@@ -106,7 +106,7 @@ console.log('opidc', req.files, req.file)
                     title,
                     post,
                     category,
-                    image: imageUrl,
+                    image: imageUrl ? imageUrl : findPost?.image,
                     writers,
                     caption
                 }
