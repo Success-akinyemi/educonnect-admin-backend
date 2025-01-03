@@ -23,7 +23,11 @@ const ContactUsSchema = new mongoose.Schema({
     },
     reason: {
         type: String,
-        required: [ true, 'reason is required.' ]
+        //required: [ true, 'reason is required.' ]
+    },
+    phoneNumber: {
+        type: String,
+        //required: [ true, 'Phone number is required.' ]
     },
     reply: {
         type: String

@@ -8,6 +8,8 @@ const router = express.Router()
 router.post('/newOrder', controllers.newOrder)
 router.post('/approveOrderDelivered', AuthenticateAdmin, controllers.approveOrderDelivered)
 router.post('/togglePayment', AuthenticateAdmin, controllers.togglePayment)
+router.post('/deleteOrder', AuthenticateAdmin, controllers.deleteOrder)
+
 
 
 //GET ROUTES

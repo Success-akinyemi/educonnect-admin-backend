@@ -74,7 +74,7 @@ export async function replyMessage(req, res){
 
                 findMessage.reply = replyMsg
                 findMessage.save()
-                
+
                 return res.status(200).json({success: true, msg: 'Email sent', data: findMessage?.email })
                 
             } catch (error) {
@@ -94,9 +94,28 @@ export async function replyMessage(req, res){
     }
 }
 
+export async function deleteMessage(req, res) {
+    const { id } = req.body
+    if(!id){
+        return res.status(400).json({ success: false, data: 'Id is required' })
+    }
+    try {
+        const findMessage = await ContactUsModel.findById({ _id: id })
+        if(!findMessage){
+            return res.status(404).json({ success: false, data: 'Message not Found' })
+        }
+        const handleDelete = await ContactUsModel.findByIdAndDelete({ _id: id })
+
+        res.status(200).json({ success: true, data: 'Message Deleted succesful' })
+    } catch (error) {
+        console.log('UNABLE TO DELETE MESSAGE', error)
+        res.status(500).json({ success: false, data: 'Unable to delete message' })
+    }
+}
+
 export async function getAllMessages(req, res) {
     try {
-        const allMessages = await ContactUsModel.find()
+        const allMessages = await ContactUsModel.find().sort({ createdAt: -1 })
 
         res.status(200).json({ success: true, data: allMessages })
     } catch (error) {

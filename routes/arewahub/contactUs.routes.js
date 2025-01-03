@@ -7,6 +7,7 @@ const router = express.Router()
 //POST ROUTES
 router.post('/sendMessage', controllers.newContactUsMsg )
 router.post('/replyMessage', AuthenticateAdmin, controllers.replyMessage )
+router.post('/deleteMessage', AuthenticateAdmin, controllers.deleteMessage )
 
 
 

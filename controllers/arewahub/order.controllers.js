@@ -122,9 +122,29 @@ export async function togglePayment(req, res) {
     }
 }
 
+export async function deleteOrder(req, res) {
+    const { id } = req.body
+    if(!id){
+        return res.status(400).json({ success: false, data: 'Order Id is required' })
+    }
+    try {
+        const order = await OrderModel.findById({ _id: id })
+        if(!order){
+            return res.status(404).json({ success: false, data: 'Order not found' })
+        }
+
+        const handleDeleteOrder = await OrderModel.findByIdAndDelete({ _id: id })
+
+        res.status(200).json({ success: true, data: 'Order deleted' })
+    } catch (error) {
+        console.log('UNABLE TO TOGGLE ORDER APPROVAL', error)
+        res.status(500).json({ success: false, data: 'Unable to toggle order approval' })
+    }
+}
+
 export async function fetAllOrders(req, res) {
     try {
-        const orders = await OrderModel.find()
+        const orders = await OrderModel.find().sort({ createdAt : -1 })
 
         res.status(200).json({ success: true, data: orders })
     } catch (error) {

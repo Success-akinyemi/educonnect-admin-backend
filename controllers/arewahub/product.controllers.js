@@ -118,7 +118,7 @@ export async function editProduct(req, res) {
 
 export async function getAllProduct(req, res) {
     try {
-        const allProduct = await ProductModel.find().select('-_id')
+        const allProduct = await ProductModel.find().select('-_id').sort({ createdAt: -1 })
 
         res.status(200).json({ success: true, data: allProduct })
     } catch (error) {
@@ -138,13 +138,13 @@ export async function fetchProducts(req, res) {
         }
         let allProduct
         if(productForm === 'book' ){
-            allProduct = await ProductModel.find({ active: true, productForm: 'book' }).select('-_id')
+            allProduct = await ProductModel.find({ active: true, productForm: 'book' }).select('-_id').sort({ createdAt: -1 })
             return res.status(200).json({ success: true, data: allProduct })
         } else if( productForm === 'bead'){
-            allProduct = await ProductModel.find({ active: true, productForm: 'bead' }).select('-_id')
+            allProduct = await ProductModel.find({ active: true, productForm: 'bead' }).select('-_id').sort({ createdAt: -1 })
             return res.status(200).json({ success: true, data: allProduct }) 
         } else {
-            allProduct = await ProductModel.find({ active: true, }).select('-_id')
+            allProduct = await ProductModel.find({ active: true, }).select('-_id').sort({ createdAt: -1 })
             return res.status(200).json({ success: true, data: allProduct }) 
         }
 
@@ -168,7 +168,7 @@ export async function getAProduct(req, res) {
             return res.status(403).json({ success: false, data: 'Product is not availble' })
         }
 
-        res.status(200).json({ success: false, data: product })
+        res.status(200).json({ success: true, data: product })
     } catch (error) {
         console.log('UNABLE TO GET PRODUCT', error)
         res.status(500).json({ success: false, data: 'Unable to get product' })
@@ -186,9 +186,9 @@ export async function deleteProduct(req, res) {
             return res.status(404).json({ success: false, data: 'Product not found' })
         }
 
-        const deleteProduct = await ProductModel.findOneAndUpdate({ _id: id })
+        const deleteProduct = await ProductModel.findByIdAndDelete({ _id: product?._id })
 
-        res.status(200).json({ success: false, data: 'Product Deleted successful' })
+        res.status(200).json({ success: true, data: 'Product Deleted successful' })
     } catch (error) {
         console.log('UNABLE TO DELETE PRODUCT', error)
         res.status(500).json({ success: false, data: 'Unable to delete product' })
@@ -209,7 +209,7 @@ export async function toggleActiveStatus(req, res) {
         product.active = !product.active
         await product.save()
 
-        res.status(200).json({ success: false, data: 'Product updated' })
+        res.status(200).json({ success: true, data: 'Product updated' })
     } catch (error) {
         console.log('UNABLE TO UPDATE PRODUCT ACTIVE STATUS', error)
         res.status(500).json({ success: false, data: 'Unable to update product active status' })
