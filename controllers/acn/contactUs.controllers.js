@@ -71,6 +71,9 @@ export async function replyMessage(req, res){
                     subject: `Hi, ${findMessage?.firstName} ${findMessage?.lastName}`,
                     text: emailTemplate
                 })
+
+                findMessage.reply = replyMsg
+                findMessage.save()
                 return res.status(200).json({success: true, msg: 'Email sent', data: findMessage?.email })
                 
             } catch (error) {
@@ -82,8 +85,7 @@ export async function replyMessage(req, res){
             return res.status(500).json({ success: false, data: 'Email could not be sent' })
         }
 
-        findMessage.reply = replyMsg
-        findMessage.save()
+
         res.status(200).json({ success: true, data: 'Success' })
     } catch (error) {
         console.log('UNABLE TO REPLY USER', error)

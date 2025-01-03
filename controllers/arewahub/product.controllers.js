@@ -130,14 +130,24 @@ export async function getAllProduct(req, res) {
 //FETCH PRODUCT FPR USER
 export async function fetchProducts(req, res) {
     const { search } = req.query
+    const { productForm } = req.query
     try {
 
         if(search){
             
         }
-        const allProduct = await ProductModel.find({ active: true }).select('-_id')
+        let allProduct
+        if(productForm === 'book' ){
+            allProduct = await ProductModel.find({ active: true, productForm: 'book' }).select('-_id')
+            return res.status(200).json({ success: true, data: allProduct })
+        } else if( productForm === 'bead'){
+            allProduct = await ProductModel.find({ active: true, productForm: 'bead' }).select('-_id')
+            return res.status(200).json({ success: true, data: allProduct }) 
+        } else {
+            allProduct = await ProductModel.find({ active: true, }).select('-_id')
+            return res.status(200).json({ success: true, data: allProduct }) 
+        }
 
-        res.status(200).json({ success: true, data: allProduct })
     } catch (error) {
         console.log('UNABLE TO GET ALL PRODUCT', error)
         res.status(500).json({ success: false, data: 'Unable to get all product' })
@@ -153,6 +163,9 @@ export async function getAProduct(req, res) {
         const product = await ProductModel.findOne({ productId: id })
         if(!product){
             return res.status(404).json({ success: false, data: 'Product not found' })
+        }
+        if(product.active === false){
+            return res.status(403).json({ success: false, data: 'Product is not availble' })
         }
 
         res.status(200).json({ success: false, data: product })

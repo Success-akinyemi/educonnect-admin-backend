@@ -35,7 +35,8 @@ const ProductSchema = new mongoose.Schema({
         //required: [ true, 'Product type is required' ]
     },
     productForm: {
-        type: String
+        type: String,
+        enum: ['book', 'bead', 'others']
     },
     active: {
         type: Boolean,
