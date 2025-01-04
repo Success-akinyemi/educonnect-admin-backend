@@ -2,6 +2,7 @@ import { generateUniqueCode } from "../../middlewares/utils.js"
 import OrderModel from "../../models/arewahub/Orders.js"
 import ProductModel from "../../models/arewahub/Product.js"
 import moment from 'moment'; 
+import NotificationModel from "../../models/NotificationModel.js";
 
 export async function newOrder(req, res) {
     const { customerName, customerEmail, phoneNumber, address, items } = req.body;
@@ -70,6 +71,12 @@ export async function newOrder(req, res) {
             orderId: orderId,
         });
 
+        const newNotification = await NotificationModel.create({
+            message: `${customerName} placed a new order for product in arewahub product`,
+            actionBy: `${customerName}`,
+            name: `${customerName}`
+        });
+
         // Send payment gateway response or further processing
         res.status(201).json({ success: true, data: 'Order created successfully' });
     } catch (error) {
@@ -80,6 +87,7 @@ export async function newOrder(req, res) {
 
 export async function approveOrderDelivered(req, res) {
     const { id } = req.body
+    const { _id, firstName, lastName } = req.user
     if(!id){
         return res.status(400).json({ success: false, data: 'Order Id is required' })
     }
@@ -93,6 +101,12 @@ export async function approveOrderDelivered(req, res) {
         order.save()
         console.log('object stats', order.status)
 
+        const newNotification = await NotificationModel.create({
+            message: order.status === 'Approved' ? `${firstName} ${lastName} has approved the order delivery for ${order?.customerName} ID: ${order?.orderId}` : `${firstName} ${lastName} has unapproved the order delivery for ${order?.customerName} ID: ${order?.orderId}`,
+            actionBy: `${_id}`,
+            name: `${firstName} ${lastName}`
+        });
+
         res.status(200).json({ success: true, data: 'Order Status updated' })
     } catch (error) {
         console.log('UNABLE TO TOGGLE ORDER APPROVAL', error)
@@ -102,6 +116,7 @@ export async function approveOrderDelivered(req, res) {
 
 export async function togglePayment(req, res) {
     const { id } = req.body
+    const { _id, firstName, lastName } = req.user
     if(!id){
         return res.status(400).json({ success: false, data: 'Order Id is required' })
     }
@@ -114,6 +129,12 @@ export async function togglePayment(req, res) {
         order.paid = !order.paid
         await order.save()
 
+        const newNotification = await NotificationModel.create({
+            message: order.paid  ? `${firstName} ${lastName} has approved the payment order of ${order?.customerName} ID: ${order?.orderId}` : `${firstName} ${lastName} has unapproved the payment order of ${order?.customerName} ID: ${order?.orderId}`,
+            actionBy: `${_id}`,
+            name: `${firstName} ${lastName}`
+        });
+
 
         res.status(200).json({ success: true, data: 'Order payment status updated' })
     } catch (error) {
@@ -124,6 +145,7 @@ export async function togglePayment(req, res) {
 
 export async function deleteOrder(req, res) {
     const { id } = req.body
+    const { _id, firstName, lastName } = req.user
     if(!id){
         return res.status(400).json({ success: false, data: 'Order Id is required' })
     }
@@ -134,6 +156,12 @@ export async function deleteOrder(req, res) {
         }
 
         const handleDeleteOrder = await OrderModel.findByIdAndDelete({ _id: id })
+
+        const newNotification = await NotificationModel.create({
+            message: `${firstName} ${lastName} has deleted an order ID: ${order?.orderId}`,
+            actionBy: `${_id}`,
+            name: `${firstName} ${lastName}`
+        });
 
         res.status(200).json({ success: true, data: 'Order deleted' })
     } catch (error) {

@@ -2,6 +2,7 @@ import Mailgen from "mailgen"
 import mailer from "../../middlewares/mailer.js"
 import { generateUniqueCode } from "../../middlewares/utils.js"
 import ContactUsModel from "../../models/arewahub/ContactUs.js"
+import NotificationModel from "../../models/NotificationModel.js"
 
 const mailGenerator = new Mailgen({
     theme: 'default',
@@ -36,15 +37,22 @@ export async function newContactUsMsg(req, res) {
             firstName, lastName, email, phoneNumber, message, messageId
         })
 
+        const newNotification = await NotificationModel.create({
+            message: `${firstName} ${lastName} sent a message for arewa hub website`,
+            actionBy: `${firstName} ${lastName}`,
+            name: `${firstName} ${lastName}`
+        });
+
         res.status(201).json({ success: true, data: 'Message Submitted Successful' })
     } catch (error) {
-        console.log('UNABLE TO CREATE A NEW CONTACT US MESSAGE (EDUCONNECT)', error)
+        console.log('UNABLE TO CREATE A NEW CONTACT US MESSAGE (AREWA HUB)', error)
         res.status(500).json({ success: false, data: 'Unable to submit contact us form' })
     }
 }
 
 export async function replyMessage(req, res){
     const { replyMsg, id } = req.body
+    const { _id, firstName, lastName } = req.user
     if(!id){
         return res.status(400).json({ success: false, data: 'Provide message Id' })
     }
@@ -74,6 +82,12 @@ export async function replyMessage(req, res){
 
                 findMessage.reply = replyMsg
                 findMessage.save()
+
+                const newNotification = await NotificationModel.create({
+                    message: `${firstName} ${lastName} replied a message from ${findMessage?.firstName} ${findMessage?.lastName} Arewa Hub website`,
+                    actionBy: `${_id}`,
+                    name: `${firstName} ${lastName}`
+                });
 
                 return res.status(200).json({success: true, msg: 'Email sent', data: findMessage?.email })
                 

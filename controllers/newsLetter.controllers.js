@@ -3,6 +3,7 @@ import { generateUniqueCode } from "../middlewares/utils.js"
 import NewsLetterModel from "../models/NewsLetter.js"
 import { v2 as cloudinary } from "cloudinary";
 import SuscriberModel from "../models/Subscribers.js";
+import NotificationModel from "../models/NotificationModel.js";
 
 // Cloudinary Configuration
 cloudinary.config({
@@ -13,7 +14,7 @@ cloudinary.config({
 
 export const newNewsletter = async (req, res) => {
     const { title, message, website, author, caption, url, image } = req.body;
-
+    const { _id, firstName, lastName } = req.user
     if (!title || !message || !website) {
         return res.status(400).json({ success: false, data: "Title, Message, and Website fields are required." });
     }
@@ -69,6 +70,12 @@ export const newNewsletter = async (req, res) => {
 
         await Promise.all(emailPromises); // Wait for all emails to be sent
 
+        const newNotification = await NotificationModel.create({
+            message: `${firstName} ${lastName} sent newsletter to  ${website} website subscribers`,
+            actionBy: `${_id}`,
+            name: `${firstName} ${lastName}`
+        });
+
         console.log('Newsletter created and emails sent.');
 
         res.status(201).json({ success: true, data: "New newsletter created and emails sent successfully." });
@@ -80,7 +87,7 @@ export const newNewsletter = async (req, res) => {
 
 export async function editNewsLetter(req, res) {
     const { id, title, message, website, author, caption, url, image } = req.body;
-
+    const { _id, firstName, lastName } = req.user
     try {
         const getNewsLetter = await NewsLetterModel.findOne({ newsLetterId: id })
         if(!getNewsLetter){
@@ -117,7 +124,7 @@ export async function editNewsLetter(req, res) {
                     author, 
                     caption, 
                     url, 
-                    image
+                    image: imageUrl ? imageUrl : getNewsLetter?.image
                 }
             },
             { new: true}
@@ -150,6 +157,11 @@ export async function editNewsLetter(req, res) {
     
             console.log('Newsletter created and emails sent.');
 
+            const newNotification = await NotificationModel.create({
+                message: `${firstName} ${lastName} sent newsletter to  ${updateNewsletter?.website} website subscribers`,
+                actionBy: `${_id}`,
+                name: `${firstName} ${lastName}`
+            });
             
         res.status(201).json({ success: true, data: 'News letter updated' })
     } catch (error) {
@@ -160,7 +172,7 @@ export async function editNewsLetter(req, res) {
 
 export async function getNewsLetter(req, res) {
     try {
-        const getAllNewsLetter = await NewsLetterModel.find()
+        const getAllNewsLetter = await NewsLetterModel.find().sort({ createdAt: -1 })
 
         res.status(200).json({ success: true, data: getAllNewsLetter })
     } catch (error) {

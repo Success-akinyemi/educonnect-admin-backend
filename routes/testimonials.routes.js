@@ -1,5 +1,6 @@
 import express from 'express'
 import * as controllers from '../controllers/testimonies.controllers.js'
+import { AuthenticateAdmin } from '../middlewares/auth.js'
 
 const router = express.Router()
 
@@ -7,7 +8,7 @@ const router = express.Router()
 router.post('/newTestimony', controllers.newTestimonials )
 router.post('/toggleBlacklist', controllers.toggleBlacklist )
 router.post('/toggleApproveTestimony', controllers.toggleApproveTestimony )
-router.post('/deleteTestimony', controllers.deleteTestimony )
+router.post('/deleteTestimony', AuthenticateAdmin, controllers.deleteTestimony )
 
 
 //GET ROUTES

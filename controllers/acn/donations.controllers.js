@@ -1,6 +1,7 @@
 import { generateUniqueCode } from "../../middlewares/utils.js"
 import DonationModel from "../../models/acn/Donations.js"
 import moment from 'moment'; 
+import NotificationModel from "../../models/NotificationModel.js";
 
 export async function newDonation(req, res) {
     const { firstName, lastName, email, phoneNumber, country, donationType } = req.body
@@ -14,6 +15,12 @@ export async function newDonation(req, res) {
         const newDonation = await DonationModel.create({
             firstName, lastName, email, phoneNumber, country, donationId, donationType
         })
+
+        const newNotification = await NotificationModel.create({
+            message: `${firstName} ${lastName} sent a new donation for ACN website`,
+            actionBy: `${firstName} ${lastName}`,
+            name: `${firstName} ${lastName}`
+        });
         
         res.status(201).json({ success: true, data: 'Donation created' })
     } catch (error) {
@@ -50,6 +57,7 @@ export async function getDonation(req, res) {
 
 export async function toggleActiveStatus(req, res) {
     const { id } = req.body
+    const { _id, firstName, lastName } = req.user
     console.log('object', id)
     try {
         const getDonationData = await DonationModel.findOne({ donationId: id })
@@ -60,6 +68,12 @@ export async function toggleActiveStatus(req, res) {
         getDonationData.status = !getDonationData.status
         await getDonationData.save()
 
+        const newNotification = await NotificationModel.create({
+            message: getDonationData?.status ? `${firstName} ${lastName} has approve donation ID: ${getDonationData?.donationId} ACN website` : `${firstName} ${lastName} has unapprove donation ID: ${getDonationData?.donationId} ACN website`,
+            actionBy: `${_id}`,
+            name: `${firstName} ${lastName}`
+        });        
+
         res.status(200).json({ success: true, data: 'Donation active status updated' })
     } catch (error) {
         console.log('UNABLE TO UPDATE DONATION STATUS', error)
@@ -69,6 +83,7 @@ export async function toggleActiveStatus(req, res) {
 
 export async function deleteDonation(req, res) {
     const { id } = req.params
+    const { _id, firstName, lastName } = req.user
     try {
         const getDonationData = await DonationModel.findOne({ donationId: id })
         if(!getDonationData){
@@ -76,6 +91,12 @@ export async function deleteDonation(req, res) {
         }
 
         const deleteTeamMember = await DonationModel.findOneAndDelete({ donationId: id })
+
+        const newNotification = await NotificationModel.create({
+            message: `${firstName} ${lastName} Deleted a donation for ACN website`,
+            actionBy: `${_id}`,
+            name: `${firstName} ${lastName}`
+        });
 
         res.status(200).json({ success: true, data: 'Donation deleted succesful' })
     } catch (error) {

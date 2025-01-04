@@ -15,6 +15,8 @@ import AdminRoute from './routes/adminAuth.controllers.js';
 import testimonialsRoutes from './routes/testimonials.routes.js';
 import subscribeRoutes from './routes/suscribe.routes.js';
 import newsLetterRoutes from './routes/newsLetter.routes.js';
+import notificationRoutes from './routes/notification.routes.js';
+
 
 
 
@@ -123,6 +125,7 @@ app.use('/api/admin', AdminRoute);
 app.use('/api/suscribe', subscribeRoutes);
 app.use('/api/testimony', testimonialsRoutes);
 app.use('/api/newsLetter', newsLetterRoutes);
+app.use('/api/notification', notificationRoutes);
 
 
 

@@ -1,4 +1,5 @@
 import { generateUniqueCode } from "../middlewares/utils.js"
+import NotificationModel from "../models/NotificationModel.js"
 import TestimomialsModel from "../models/Testimonials.js"
 
 export async function newTestimonials(req, res) {
@@ -25,6 +26,12 @@ export async function newTestimonials(req, res) {
         const newTestimony = await TestimomialsModel.create({
             firstName, lastName, position, testimony, img, userId: testimonyId, website
         })
+
+        const newNotification = await NotificationModel.create({
+            message: `${firstName} ${lastName} added a new testimony for ${website}`,
+            actionBy: `${firstName} ${lastName}`,
+            name: `${firstName} ${lastName}`
+        });
 
         res.status(201).json({ success: true, data: 'Testimony Save Successful' })
     } catch (error) {
@@ -77,6 +84,7 @@ export async function toggleApproveTestimony(req, res) {
 
 export async function deleteTestimony(req, res) {
     const { id } = req.body
+    const { _id, firstName, lastName } = req.user
     if(!id){
         return res.status(400).json({ success: false, data: 'Provide an Id' })
     }
@@ -88,6 +96,12 @@ export async function deleteTestimony(req, res) {
 
         const deleteTestimony = await TestimomialsModel.findByIdAndDelete({ _id: id })
 
+        const newNotification = await NotificationModel.create({
+            message: `${firstName} ${lastName} deleted a testimony for ${getTestimony?.website}`,
+            actionBy: `${firstName} ${lastName}`,
+            name: `${firstName} ${lastName}`
+        });
+
         res.status(200).json({ success: true, data: 'Testimony deleted' })
     } catch (error) {
         console.log('UNABLE TO DELETE TESTIMONY', error)
@@ -97,7 +111,7 @@ export async function deleteTestimony(req, res) {
 
 export async function getAllTestimonies(req, res) {
     try {
-        const allTestimonies = await TestimomialsModel.find()
+        const allTestimonies = await TestimomialsModel.find().sort({ createdAt: -1 })
 
         res.status(200).json({ success: true, data: allTestimonies })
     } catch (error) {
@@ -130,7 +144,7 @@ export async function getSectionTestimonies(req, res) {
         return res.status(400).json({ success: false, data: 'Value parameter is required' })
     }
     try {
-        const getData = await TestimomialsModel.find({ website: value })
+        const getData = await TestimomialsModel.find({ website: value }).sort({ createdAt: -1 })
 
         res.status(200).json({ success: true, data: getData })
     } catch (error) {
@@ -145,7 +159,7 @@ export async function getSectionActiveTestimonies(req, res) {
         return res.status(400).json({ success: false, data: 'Value parameter is required' })
     }
     try {
-        const getData = await TestimomialsModel.find({ website: value, active: true })
+        const getData = await TestimomialsModel.find({ website: value, active: true }).sort({ createdAt: -1 })
 
         res.status(200).json({ success: true, data: getData })
     } catch (error) {
@@ -157,7 +171,7 @@ export async function getSectionActiveTestimonies(req, res) {
 export async function getActiveTestimonies(req, res) {
 
     try {
-        const getData = await TestimomialsModel.find({ active: true })
+        const getData = await TestimomialsModel.find({ active: true }).sort({ createdAt: -1 })
 
         res.status(200).json({ success: true, data: getData })
     } catch (error) {
