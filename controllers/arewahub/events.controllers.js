@@ -12,19 +12,22 @@ cloudinary.config({
 // NEW EVENT
 export async function newEvent(req, res) {
     const { eventName, location, speakers, schedule, eventDescription, eventDate, eventTime, registerUrl } = req.body;
-    console.log('object', req.files, req.body)
+    console.log('Received Data:', req.files, req.body);
+
     if (!eventName) {
         return res.status(400).json({ success: false, data: "Event name is required" });
     }
 
     try {
         const eventId = await generateUniqueCode(8);
-        console.log("EVENT ID", eventId);
+        console.log("Generated EVENT ID:", eventId);
 
         let imageUrl = null;
 
         // Upload single event image
-        if (req.file) {
+        if (req.files?.image?.[0]) {
+            const file = req.files.image[0];
+
             const uploadResult = await new Promise((resolve, reject) => {
                 const uploadStream = cloudinary.uploader.upload_stream(
                     { folder: "event_images" },
@@ -33,17 +36,18 @@ export async function newEvent(req, res) {
                         resolve(result);
                     }
                 );
-                uploadStream.end(req.file.buffer); // Send the file buffer
+                uploadStream.end(file.buffer);
             });
 
             imageUrl = uploadResult.secure_url;
+            console.log('New event image url:', imageUrl)
         }
 
         let galleryUrls = [];
-        // Upload event gallery
-        if (req.files && req.files.eventGallery && Array.isArray(req.files.eventGallery)) {
+        // Upload event gallery images
+        if (req.files?.eventGalleryFile && Array.isArray(req.files.eventGalleryFile)) {
             galleryUrls = await Promise.all(
-                req.files.eventGallery.map((file) =>
+                req.files.eventGalleryFile.map((file) =>
                     new Promise((resolve, reject) => {
                         const uploadStream = cloudinary.uploader.upload_stream(
                             { folder: "event_gallery" },
@@ -52,13 +56,14 @@ export async function newEvent(req, res) {
                                 resolve(result.secure_url);
                             }
                         );
-                        uploadStream.end(file.buffer); // Send the file buffer
+                        uploadStream.end(file.buffer);
                     })
                 )
             );
+            console.log('New gallery image url:', galleryUrls)
         }
 
-        // Save event to the database
+        // Save new event in the database
         const newEvent = await EventModel.create({
             eventName,
             location,
@@ -75,49 +80,50 @@ export async function newEvent(req, res) {
 
         res.status(201).json({ success: true, data: "New Event created" });
     } catch (error) {
-        console.error("UNABLE TO CREATE NEW EVENTS", error);
-        res.status(500).json({ success: false, data: "Unable to create new events" });
+        console.error("ERROR CREATING EVENT:", error);
+        res.status(500).json({ success: false, data: "Unable to create new event" });
     }
 }
 
-
 //UPDATE EVENT
 export async function updateEvent(req, res) {
-    const { id, eventName, location, speakers, schedule, registerUrl, eventDescription, image, eventDate, eventTime, eventGallery } = req.body;
-    console.log(req.body)
+    const { id, eventName, location, speakers, schedule, registerUrl, eventDescription, image, eventDate, eventTime } = req.body;
+    console.log("Received update request:", req.body);
+
     try {
-        // Find the event by eventId
+        // Find existing event
         const findEvent = await EventModel.findOne({ eventId: id });
         if (!findEvent) {
             return res.status(404).json({ success: false, data: 'Event does not exist' });
         }
 
-        let imageUrl = null;
+        let imageUrl = findEvent.image;
 
+        // Upload new event image if provided
         if (req.files?.image?.[0]) {
             const file = req.files.image[0];
 
-            // Upload to Cloudinary
             const uploadResult = await new Promise((resolve, reject) => {
                 const uploadStream = cloudinary.uploader.upload_stream(
-                    { folder: "team_images" },
+                    { folder: "event_images" },
                     (error, result) => {
                         if (error) return reject(error);
                         resolve(result);
                     }
                 );
-                uploadStream.end(file.buffer); // Use the file buffer from Multer
+                uploadStream.end(file.buffer);
             });
 
             imageUrl = uploadResult.secure_url;
-            console.log("Uploaded image URL:", imageUrl);
+            console.log("Updated image URL:", imageUrl);
         }
 
-        let galleryUrls = [];
-        // Upload event gallery
-        if (req.files && req.files.eventGallery && Array.isArray(req.files.eventGallery)) {
-            galleryUrls = await Promise.all(
-                req.files.eventGallery.map((file) =>
+        let galleryUrls = findEvent.eventGallery || []; // Keep existing images
+
+        // Upload new gallery images if provided
+        if (req.files?.eventGalleryFile && Array.isArray(req.files.eventGalleryFile)) {
+            const newGalleryUrls = await Promise.all(
+                req.files.eventGalleryFile.map((file) =>
                     new Promise((resolve, reject) => {
                         const uploadStream = cloudinary.uploader.upload_stream(
                             { folder: "event_gallery" },
@@ -126,15 +132,18 @@ export async function updateEvent(req, res) {
                                 resolve(result.secure_url);
                             }
                         );
-                        uploadStream.end(file.buffer); // Send the file buffer
+                        uploadStream.end(file.buffer);
                     })
                 )
             );
+
+            galleryUrls = [...galleryUrls, ...newGalleryUrls]; // Append new images
+            console.log("Updated gallery image URL:", galleryUrls);
         }
 
-        // Update the event using the ID
+        // Update the event in the database
         const updatedEventData = await EventModel.findByIdAndUpdate(
-            findEvent._id, // Correctly reference the ID
+            findEvent._id,
             {
                 $set: {
                     eventName,
@@ -142,24 +151,25 @@ export async function updateEvent(req, res) {
                     speakers,
                     schedule,
                     eventDescription,
-                    image: imageUrl ? imageUrl : findEvent?.image,
-                    eventDate, 
+                    image: imageUrl,
+                    eventDate,
                     registerUrl,
                     eventTime,
-                    eventGallery: galleryUrls
+                    eventGallery: galleryUrls,
                 },
             },
-            { new: true } // Return the updated document
+            { new: true }
         );
 
         if (!updatedEventData) {
             return res.status(400).json({ success: false, data: 'Unable to update event data' });
         }
-        console.log('updatedEventData', updatedEventData)
 
-        res.status(201).json({ success: true, data: 'Event data updated', event: updatedEventData });
+        console.log("Updated event data:", updatedEventData);
+        res.status(200).json({ success: true, data: 'Event updated successfully', event: updatedEventData });
+
     } catch (error) {
-        console.log('UNABLE TO UPDATE EVENT', error);
+        console.error("ERROR UPDATING EVENT:", error);
         res.status(500).json({ success: false, data: 'Unable to update event' });
     }
 }
