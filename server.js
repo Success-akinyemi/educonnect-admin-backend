@@ -42,6 +42,8 @@ import arewaEventsRoutes from './routes/arewahub/event.routes.js'
 import arewaFaqRoutes from './routes/arewahub/faq.routes.js';
 import arewaContactUsRoutes from './routes/arewahub/contactUs.routes.js';
 import arewaTeamMembersRoutes from './routes/arewahub/team.routes.js';
+import arewaBecomeAMemberRoutes from './routes/arewahub/becomeAmember.routes.js';
+
 
 
 //EDUCONNECT
@@ -151,6 +153,7 @@ app.use('/api/arewahub/events', arewaEventsRoutes)
 app.use('/api/arewahub/faq', arewaFaqRoutes)
 app.use('/api/arewahub/contactUs', arewaContactUsRoutes)
 app.use('/api/arewahub/team', arewaTeamMembersRoutes)
+app.use('/api/arewahub/becomeAMember', arewaBecomeAMemberRoutes)
 
 
 //EDU AFRICA
