@@ -21,7 +21,7 @@ export async function becomeAMember(req, res) {
         return res.status(400).json({ success: false, data: 'Mobile number is required'})
     }
     
-    const { certificateImage, artWorkGallery } = req.body || {}
+    const { certificateImage, artWorkGallery } = req.files || req.body || {}
     
     if(artWorkGallery && !Array.isArray(artWorkGallery)){
         return res.status(400).json({ success: false, data: 'artWorkGallery must be an array'})
@@ -44,7 +44,7 @@ export async function becomeAMember(req, res) {
         console.log('FILES', req.files, 'BODY', req.body, 'CERT', req.body.certificateImage)
         
         let certificateImageUrl = null
-        if(req?.body?.certificateImage) {
+        if(req?.files?.certificateImage || req?.body?.certificateImage) {
             const file = certificateImage[0];
 
             const uploadResult = await new Promise((resolve, reject) => {
@@ -63,9 +63,10 @@ export async function becomeAMember(req, res) {
         }
 
         let artWorkGalleryUrls = []
-        if (req?.body?.artWorkGallery && Array.isArray(req?.body?.artWorkGallery)) {
+        const imageArray = req?.files?.artWorkGallery || req?.body?.artWorkGallery
+        if ( imageArray && Array.isArray(req?.body?.artWorkGallery)) {
             artWorkGalleryUrls = await Promise.all(
-                req.body.artWorkGallery.map((file) =>
+                imageArray.map((file) =>
                     new Promise((resolve, reject) => {
                         const uploadStream = cloudinary.uploader.upload_stream(
                             { folder: "arewahubmember_craft_gallery" },
