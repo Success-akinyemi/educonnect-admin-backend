@@ -9,6 +9,7 @@ lerna-debug.log*
 
 node_modules
 .env
+ngrok.exe
 dist
 dist-ssr
 *.local

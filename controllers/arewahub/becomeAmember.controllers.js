@@ -1,5 +1,14 @@
 import ArewaHubMemberModel from "../../models/arewahub/members.js"
 
+import { v2 as cloudinary } from "cloudinary";
+
+// Cloudinary Configuration
+cloudinary.config({
+    cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+    api_key: process.env.CLOUDINARY_API_KEY,
+    api_secret: process.env.CLOUDINARY_API_SECRET,
+});
+
 export async function becomeAMember(req, res) {
     const { firstName, lastName, email, mobileNumber, location, bussinessName, craftType, experienceLevel } = req.body
     if(!firstName){
@@ -12,7 +21,7 @@ export async function becomeAMember(req, res) {
         return res.status(400).json({ success: false, data: 'Mobile number is required'})
     }
     
-    const { certificateImage, artWorkGallery } = req.files
+    const { certificateImage, artWorkGallery } = req.body || {}
     
     if(artWorkGallery && !Array.isArray(artWorkGallery)){
         return res.status(400).json({ success: false, data: 'artWorkGallery must be an array'})
@@ -31,9 +40,11 @@ export async function becomeAMember(req, res) {
                 return res.status(400).json({ success: false, data: 'Mobile numeber already exist'})
             }
         }
+
+        console.log('FILES', req.files, 'BODY', req.body, 'CERT', req.body.certificateImage)
         
         let certificateImageUrl = null
-        if(certificateImage[0]) {
+        if(req?.body?.certificateImage) {
             const file = certificateImage[0];
 
             const uploadResult = await new Promise((resolve, reject) => {
@@ -52,9 +63,9 @@ export async function becomeAMember(req, res) {
         }
 
         let artWorkGalleryUrls = []
-        if (artWorkGallery && Array.isArray(artWorkGallery)) {
+        if (req?.body?.artWorkGallery && Array.isArray(req?.body?.artWorkGallery)) {
             artWorkGalleryUrls = await Promise.all(
-                req.files.artWorkGallery.map((file) =>
+                req.body.artWorkGallery.map((file) =>
                     new Promise((resolve, reject) => {
                         const uploadStream = cloudinary.uploader.upload_stream(
                             { folder: "arewahubmember_craft_gallery" },
