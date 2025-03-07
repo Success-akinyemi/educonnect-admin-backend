@@ -64,7 +64,7 @@ export async function becomeAMember(req, res) {
 
         let artWorkGalleryUrls = []
         const imageArray = req?.files?.artWorkGallery || req?.body?.artWorkGallery
-        if ( imageArray && Array.isArray(req?.body?.artWorkGallery)) {
+        if ( imageArray && Array.isArray(imageArray)) {
             artWorkGalleryUrls = await Promise.all(
                 imageArray.map((file) =>
                     new Promise((resolve, reject) => {
@@ -94,7 +94,7 @@ export async function becomeAMember(req, res) {
             certificateImage: certificateImageUrl || '',
             artWorkGallery: artWorkGalleryUrls || []
         })
-
+        console.log('newMember', newMember)
         res.status(201).json({ success: true, data: 'Membership account created succesful'})
     } catch (error) {
         console.log('UNABLE TO ADD NEW MEMEBER ON AREWA HUB',error)
