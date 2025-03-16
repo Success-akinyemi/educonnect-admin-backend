@@ -10,8 +10,6 @@ router.post('/toggleBlacklist', controllers.toggleBlacklist )
 router.post('/toggleApproveTestimony', controllers.toggleApproveTestimony )
 router.post('/deleteTestimony', AuthenticateAdmin, controllers.deleteTestimony )
 
-router.post('/dele', controllers.dele )
-
 
 //GET ROUTES
 router.get('/getAllTestimonies', controllers.getAllTestimonies )
