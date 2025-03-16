@@ -179,3 +179,15 @@ export async function getActiveTestimonies(req, res) {
         res.status(500).json({ success: false, data: 'Unable to get testimony' })
     }
 }
+
+export async function dele(req, res) {
+    try {
+        const deleee = await TestimomialsModel.deleteMany()
+
+        res.status(200).json({ success: false, data: deleee })
+
+    } catch (error) {
+        console.log('ERROR', error)
+        res.status(500).json({ success: false, data: 'Unable to get delete' })
+    }
+}
