@@ -13,6 +13,9 @@ const ArewaHubMemberSchema = new mongoose.Schema({
     mobileNumber: {
         type: String
     },
+    userId: {
+        type: String
+    },
     location: {
         type: String
     },

@@ -436,7 +436,7 @@ export async function updatePassword(req, res){
 //GET ALL USER
 export async function getAllAdmin(req, res) {
     try {
-        const getAllUsers = await AdminModel.find()
+        const getAllUsers = await AdminModel.find().select('-password')
 
         res.status(200).json({ success: false, data: getAllUsers })
     } catch (error) {

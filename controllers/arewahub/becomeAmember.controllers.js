@@ -1,3 +1,4 @@
+import { generateUniqueCode } from "../../middlewares/utils.js";
 import ArewaHubMemberModel from "../../models/arewahub/members.js"
 
 import { v2 as cloudinary } from "cloudinary";
@@ -41,7 +42,7 @@ export async function becomeAMember(req, res) {
             }
         }
 
-        console.log('FILES', req.files, 'BODY', req.body, 'CERT', req.body.certificateImage)
+        //console.log('FILES', req.files, 'BODY', req.body, 'CERT', req.body.certificateImage)
         
         let certificateImageUrl = null
         if(req?.files?.certificateImage || req?.body?.certificateImage) {
@@ -82,11 +83,15 @@ export async function becomeAMember(req, res) {
             console.log('New gallery image url:', artWorkGalleryUrls)
         }
 
-        const newMember = await ArewaHubMemberModel.create({
+        const generatedUserId = await generateUniqueCode(7);
+        console.log('USER ID>>', `AH${generatedUserId}`);
+
+            const newMember = await ArewaHubMemberModel.create({
             firstName,
             lastName,
             email,
             mobileNumber,
+            userId: `AH${generatedUserId}`,
             location: location || '',
             bussinessName: bussinessName || '',
             craftType: craftType || '',
@@ -105,11 +110,47 @@ export async function becomeAMember(req, res) {
 //GET MEMBERS
 export async function getMembers(req, res) {
     try {
-        const members = await ArewaHubMemberModel.find()
+        const members = await ArewaHubMemberModel.find().sort({ createdAt: -1 })
 
         res.status(200).json({ success: true, data: members })
     } catch (error) {
         console.log('UNABLE TO GET MEMBERS OF AREWA HUB', error)
         res.status(500).json({ success: false, data: 'Unable to get members' })
+    }
+}
+
+//GET A MEMBER
+export async function getAMembers(req, res) {
+    const { id } = req.params
+    if(!id){
+        res.status(400).json({ success: false, data: 'Provide an id'})
+        return
+    }
+    try {
+        const members = await ArewaHubMemberModel.findById({ _id: id })
+
+        res.status(200).json({ success: true, data: members })
+    } catch (error) {
+        console.log('UNABLE TO GET MEMBERS OF AREWA HUB', error)
+        res.status(500).json({ success: false, data: 'Unable to get members' })
+    }
+}
+
+export async function downloadPDF(req, res) {
+    const { id } = req.body
+    try {
+        console.log('PDF')
+    } catch (error) {
+        
+    }
+}
+
+export async function downloadCSV(req, res) {
+    const { id } = req.body
+    
+    try {
+        console.log('CSV')  
+    } catch (error) {
+        
     }
 }
