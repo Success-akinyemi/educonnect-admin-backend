@@ -1,7 +1,14 @@
-import { generateUniqueCode } from "../../middlewares/utils.js";
+import { formatDateAndTime, generateUniqueCode } from "../../middlewares/utils.js";
 import ArewaHubMemberModel from "../../models/arewahub/members.js"
-
+import PDFDocument from 'pdfkit';
+import fs from 'fs';
+import path from 'path';
+import { fileURLToPath } from 'url';
+import os from 'os'; // For temp files
+import { v4 as uuidv4 } from 'uuid';
 import { v2 as cloudinary } from "cloudinary";
+import { format } from 'date-fns';
+import fastCsv from 'fast-csv';
 
 // Cloudinary Configuration
 cloudinary.config({
@@ -9,6 +16,9 @@ cloudinary.config({
     api_key: process.env.CLOUDINARY_API_KEY,
     api_secret: process.env.CLOUDINARY_API_SECRET,
 });
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 export async function becomeAMember(req, res) {
     const { firstName, lastName, email, mobileNumber, location, bussinessName, craftType, experienceLevel } = req.body
@@ -137,20 +147,154 @@ export async function getAMembers(req, res) {
 }
 
 export async function downloadPDF(req, res) {
-    const { id } = req.body
     try {
-        console.log('PDF')
-    } catch (error) {
+        const members = await ArewaHubMemberModel.find().sort({ createdAt: -1 });
+
+        // Generate a unique filename
+        const tempDir = os.tmpdir();
+        const fileName = `members_${uuidv4()}.pdf`;
+        const filePath = path.join(tempDir, fileName);
         
+        const stream = fs.createWriteStream(filePath);
+        const doc = new PDFDocument({ margin: 30, size: 'A4' });
+        doc.pipe(stream);
+
+        // Title
+        doc.fontSize(20).text('Arewa Hub Members', { align: 'center', underline: true });
+        doc.fontSize(16).text(`Total Members (${members?.length})`, { align: 'center', underline: false });
+        doc.moveDown(1);
+
+        members.forEach((member, index) => {
+            const { formattedDate, formattedTime } = formatDateAndTime(member?.createdAt);
+
+            // Member Title
+            doc.fontSize(14).fillColor('black').text(`Member ${index + 1}`, { underline: true });
+            doc.moveDown(0.5);
+
+            // Function to write bold labels
+            const writeBoldText = (label, value) => {
+                doc.font('Helvetica-Bold').text(label, { continued: true });
+                doc.font('Helvetica').text(` ${value}`);
+                doc.moveDown(0.5);
+            };
+
+            writeBoldText('First Name:', member.firstName);
+            writeBoldText('Last Name:', member.lastName);
+
+            // Clickable email
+            doc.font('Helvetica-Bold').text('Email:', { continued: true });
+            doc.font('Helvetica')
+                .fillColor('blue')
+                .text(` ${member.email}`, { link: `mailto:${member.email}`, underline: true });
+            doc.fillColor('black');
+            doc.moveDown(0.5);
+
+            writeBoldText('Mobile Number:', member.mobileNumber);
+            writeBoldText('Location:', member.location);
+            writeBoldText('Business Name:', member.bussinessName);
+            writeBoldText('Craft Type:', member.craftType);
+            writeBoldText('Experience Level:', member.experienceLevel);
+            writeBoldText('Registered Date:', formattedDate);
+            writeBoldText('Registered Time:', formattedTime);
+
+            // Clickable Certificate Image
+            if (member.certificateImage) {
+                doc.font('Helvetica-Bold').text('Certificate Image:', { continued: true });
+                doc.font('Helvetica')
+                    .fillColor('blue')
+                    .text(` View`, { link: member.certificateImage, underline: true });
+                doc.fillColor('black');
+                doc.moveDown(0.5);
+            }
+
+            // Clickable Artwork Gallery Images
+            if (member.artWorkGallery.length > 0) {
+                doc.font('Helvetica-Bold').text('ArtWork Gallery:');
+                doc.moveDown(0.3);
+                member.artWorkGallery.forEach((image, i) => {
+                    doc.font('Helvetica')
+                        .fillColor('blue')
+                        .text(`${i + 1}. View Image`, { link: image, underline: true });
+                    doc.fillColor('black');
+                });
+                doc.moveDown(0.5);
+            }
+
+            doc.moveDown(1);
+        });
+
+        doc.end();
+
+        stream.on('finish', () => {
+            res.download(filePath, 'members.pdf', (err) => {
+                if (err) {
+                    console.error('Error sending PDF:', err);
+                    res.status(500).json({ success: false, data: 'Unable to generate PDF file' });
+                }
+                fs.unlink(filePath, (err) => {
+                    if (err) console.error('Failed to delete temp file:', err);
+                });
+            });
+        });
+
+    } catch (error) {
+        console.error('UNABLE TO GENERATE PDF FILE OF MEMBERS', error);
+        res.status(500).json({ success: false, data: 'Unable to generate PDF file' });
     }
 }
 
 export async function downloadCSV(req, res) {
-    const { id } = req.body
-    
     try {
-        console.log('CSV')  
+        const members = await ArewaHubMemberModel.find().sort({ createdAt: -1 });
+
+        // Generate a unique filename in temp directory
+        const tempDir = os.tmpdir();
+        const fileName = `members_${uuidv4()}.csv`;
+        const filePath = path.join(tempDir, fileName);
+
+        // Create a writable stream for CSV
+        const stream = fs.createWriteStream(filePath);
+        const csvStream = fastCsv.format({ headers: true });
+
+        csvStream.pipe(stream);
+
+        // Add data rows
+        members.forEach((member) => {
+            csvStream.write({
+                "First Name": member.firstName,
+                "Last Name": member.lastName,
+                "Email": member.email,
+                "Mobile Number": member.mobileNumber,
+                "Location": member.location,
+                "Business Name": member.bussinessName,
+                "Craft Type": member.craftType,
+                "Experience Level": member.experienceLevel,
+                "Registered Date": format(new Date(member.createdAt), 'yyyy-MM-dd'),
+                "Registered Time": format(new Date(member.createdAt), 'HH:mm:ss'),
+                "Certificate Image": member.certificateImage || 'N/A',
+                "ArtWork Gallery": member.artWorkGallery.length > 0 ? member.artWorkGallery.join('; ') : 'N/A'
+            });
+        });
+
+        csvStream.end();
+
+        // Wait for stream to finish
+        stream.on('finish', () => {
+            res.download(filePath, 'members.csv', (err) => {
+                if (err) {
+                    console.error('Error sending CSV:', err);
+                    return res.status(500).json({ success: false, data: 'Unable to generate CSV file' });
+                }
+
+                // Delete the temp file after download
+                fs.unlink(filePath, (err) => {
+                    if (err) console.error('Failed to delete temp file:', err);
+                });
+            });
+        });
+
     } catch (error) {
-        
+        console.error('UNABLE TO GENERATE CSV FILE OF MEMBERS', error);
+        res.status(500).json({ success: false, data: 'Unable to generate CSV file' });
     }
 }

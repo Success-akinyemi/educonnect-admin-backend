@@ -7,13 +7,13 @@ const router = express.Router()
 
 //POST ROUTES
 router.post('/newMember', uploadImages, controllers.becomeAMember )
-router.post('/downloadPDF', AuthenticateAdmin, controllers.downloadPDF )
-router.post('/downloadCSV', AuthenticateAdmin, controllers.downloadCSV )
 
 
 //GET ROUTES
 router.get('/getMembers', AuthenticateAdmin, controllers.getMembers )
 router.get('/getAMember/:id', AuthenticateAdmin, controllers.getAMembers )
+router.get('/downloadPDF', AuthenticateAdmin, controllers.downloadPDF )
+router.get('/downloadCSV', AuthenticateAdmin, controllers.downloadCSV )
 
 
 //PUT ROUTES
