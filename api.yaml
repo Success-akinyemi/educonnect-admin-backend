@@ -651,3 +651,119 @@ paths:
           description: User error
         500:
           description: Server error 
+
+#VOLUNTEERS
+  /api/educonnect/volunteer/becomeAVolunteer:
+    post:
+      summary: Become a volunteer
+      description: This endpoint allows users to become a volunteer for educonnect  
+      parameters:
+        - name: body
+          in: body
+          required: true
+          schema:
+            type: object
+            required:
+              - firstName
+              - lastName
+              - email
+              - phoneNumber
+            properties:
+              firstName:
+                type: string
+              lastName:
+                type: string
+              email:
+                type: string
+              phoneNumber:
+                type: string
+              skill:
+                type: string
+              message:
+                type: string
+      responses:
+        201: 
+          description: Successful
+        400:
+          description: User error
+        500: 
+          description: Server error
+
+  /api/educonnect/member/becomeAMember:
+    post:
+      summary: Become a member
+      description: This endpoint allows users to become a becomeAMember for educonnect  
+      parameters:
+        - name: body
+          in: body
+          required: true
+          schema:
+            type: object
+            required:
+              - firstName
+              - lastName
+              - email
+              - phoneNumber
+            properties:
+              firstName:
+                type: string
+              lastName:
+                type: string
+              email:
+                type: string
+              phoneNumber:
+                type: string
+              message:
+                type: string
+      responses:
+        201: 
+          description: Successful
+        400:
+          description: User error
+        500: 
+          description: Server error
+
+  /api/educonnect/champion/becomeAChampion:
+    post:
+      summary: Become a champion
+      description: This endpoint allows users to become a champion for educonnect  
+      parameters:
+        - name: body
+          in: body
+          required: true
+          schema:
+            type: object
+            required:
+              - firstName
+              - lastName
+              - email
+              - phoneNumber
+              - reasonToBecomeAChampion
+              - currentProject
+              - pastProject
+              - isCommitted
+            properties:
+              firstName:
+                type: string
+              lastName:
+                type: string
+              email:
+                type: string
+              phoneNumber:
+                type: string
+              reasonToBecomeAChampion:
+                type: string
+              currentProject:
+                type: string
+              pastProject:
+                type: string
+              isCommitted:
+                type: boolean
+                example: true
+      responses:
+        201: 
+          description: Successful
+        400:
+          description: User error
+        500: 
+          description: Server error

@@ -24,6 +24,11 @@ import notificationRoutes from './routes/notification.routes.js';
 import educonnectContactUsRoutes from './routes/educonnect/contactUs.routes.js';
 import educonnectFaqRoutes from './routes/educonnect/faq.routes.js';
 import educonnectTeamMembersRoutes from './routes/educonnect/team.routes.js';
+import educonnectVolunteersRoutes from './routes/educonnect/volunteer.routes.js';
+import educonnectMembersRoutes from './routes/educonnect/member.routes.js';
+import educonnectChampionRoutes from './routes/educonnect/champion.routes.js';
+
+
 
 //ACN
 import acnContactUsRoutes from './routes/acn/contactUs.routes.js';
@@ -135,6 +140,9 @@ app.use('/api/notification', notificationRoutes);
 app.use('/api/educonnect/contactUs', educonnectContactUsRoutes);
 app.use('/api/educonnect/faq', educonnectFaqRoutes);
 app.use('/api/educonnect/team', educonnectTeamMembersRoutes)
+app.use('/api/educonnect/volunteer', educonnectVolunteersRoutes)
+app.use('/api/educonnect/member', educonnectMembersRoutes)
+app.use('/api/educonnect/champion', educonnectChampionRoutes)
 
 //ACN
 app.use('/api/acn/contactUs', acnContactUsRoutes);
